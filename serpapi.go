@@ -135,11 +135,13 @@ func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
 // execute HTTP get reuqest and returns http response
 func (client *SerpApiClient) execute(path string, output string, parameter map[string]string) (*http.Response, error) {
 	query := url.Values{}
-	for k, v := range client.Parameter {
-		query.Add(k, v)
+	for name, value := range parameter {
+		query.Add(name, value)
 	}
-	for k, v := range parameter {
-		query.Add(k, v)
+	for name, value := range client.Parameter {
+		if _, ok := parameter[name]; !ok {
+			query.Add(name, value)
+		}
 	}
 
 	// source programming language
