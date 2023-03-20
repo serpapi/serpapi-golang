@@ -8,7 +8,7 @@ import (
 )
 
 /***
- * Demonstrate how to search on Google
+ * Demonstrate how to run a search on Google.
  *
  * go get -u github.com/serpapi/serpapi-golang
  */
@@ -26,12 +26,15 @@ func main() {
 		"q":        "Coffee",
 		"location": "Austin,Texas",
 	}
+	fmt.Println("search is running")
 	data, err := client.Search(parameter)
 	if err != nil {
 		panic(err)
 	}
 	// decode data and display the first organic result title
 	results := data["organic_results"].([]interface{})
+	fmt.Println("search first result:")
 	firstResult := results[0].(map[string]interface{})
 	fmt.Println(firstResult["title"].(string))
+	fmt.Println("ok: oobt test passed")
 }

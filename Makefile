@@ -2,23 +2,32 @@
 #
 version=`grep VERSION serpapi.go | cut -d'"' -f2`
 
-all: test
+.PHONY: test oobt
 
-check:
+all: version lint test doc ready
+
+# lint source code using go tools
+lint:
 	go vet .
 	go fmt .
 
+# run integration test suite
 test:
-	go test -v .
+	go test -v ./test
+
+# create documentation
+doc:
+	go doc
 
 # check that everything is pushed
-package:
+ready:
 	git status | grep "Nothing"
 
 oobt:
 	mkdir -p /tmp/oobt
-	cp demo/demo.go /tmp/oobt
+	cp oobt/demo.go /tmp/oobt
 	cd /tmp/oobt ; \
+		go mod init serpapi.com/golang/oobt ; \
 		go get -u github.com/serpapi/serpapi-golang ; \
 		go run demo.go
 

@@ -1,25 +1,27 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestBaidu(t *testing.T) {
+func TestGoogleProduct(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "baidu",
+    "engine": "google_product",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
+  parameter := map[string]string{ 
     "q": "coffee",
+ 
+    "product_id": "4172129135583325756",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +35,8 @@ func TestBaidu(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results")
+  if len(rsp["product_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 product_results") 
     return
   }
 }  

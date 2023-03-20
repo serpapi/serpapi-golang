@@ -1,26 +1,25 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestGoogleSearch(t *testing.T) {
+func TestNaver(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "google_search",
+    "engine": "naver",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "q": "coffee",
-    "engine": "google",
+  parameter := map[string]string{ 
+    "query": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -34,8 +33,8 @@ func TestGoogleSearch(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results")
+  if len(rsp["ads_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 ads_results") 
     return
   }
 }  

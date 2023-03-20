@@ -1,25 +1,25 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestHomeDepot(t *testing.T) {
+func TestEbay(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "home_depot",
+    "engine": "ebay",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "q": "table",
+  parameter := map[string]string{ 
+    "_nkw": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +33,8 @@ func TestHomeDepot(t *testing.T) {
     return
   }
 
-  if len(rsp["products"].([]interface{})) < 5 {
-    t.Error("expect more than 5 products")
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

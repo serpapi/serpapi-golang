@@ -1,26 +1,25 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestGoogleLocalServices(t *testing.T) {
+func TestAppleAppStore(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "google_local_services",
+    "engine": "apple_app_store",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "q": "Electrician",
-    "place_id": "ChIJOwg_06VPwokRYv534QaPC8g",
+  parameter := map[string]string{ 
+    "term": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -34,8 +33,8 @@ func TestGoogleLocalServices(t *testing.T) {
     return
   }
 
-  if len(rsp["local_ads"].([]interface{})) < 5 {
-    t.Error("expect more than 5 local_ads")
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

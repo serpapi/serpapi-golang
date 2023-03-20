@@ -1,25 +1,27 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestYoutube(t *testing.T) {
+func TestGooglePlay(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "youtube",
+    "engine": "google_play",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "search_query": "coffee",
+  parameter := map[string]string{ 
+    "q": "kite",
+ 
+    "store": "apps",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +35,8 @@ func TestYoutube(t *testing.T) {
     return
   }
 
-  if len(rsp["video_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 video_results")
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

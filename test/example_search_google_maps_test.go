@@ -1,25 +1,29 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestGoogleScholar(t *testing.T) {
+func TestGoogleMaps(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "google_scholar",
+    "engine": "google_maps",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "q": "coffee",
+  parameter := map[string]string{ 
+    "q": "pizza",
+ 
+    "ll": "@40.7455096,-74.0083012,15.1z",
+ 
+    "type": "search",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +37,8 @@ func TestGoogleScholar(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results")
+  if len(rsp["local_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 local_results") 
     return
   }
 }  

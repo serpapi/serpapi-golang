@@ -1,27 +1,27 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestGoogleImages(t *testing.T) {
+func TestGoogleLocalServices(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "google_images",
+    "engine": "google_local_services",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "engine": "google",
-    "tbm": "isch",
-    "q": "coffee",
+  parameter := map[string]string{ 
+    "q": "Electrician",
+ 
+    "data_cid": "ChIJOwg_06VPwokRYv534QaPC8g",
   }
   rsp, err := client.Search(parameter)
 
@@ -35,8 +35,8 @@ func TestGoogleImages(t *testing.T) {
     return
   }
 
-  if len(rsp["images_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 images_results")
+  if len(rsp["local_ads"].([]interface{})) < 5 {
+    t.Error("expect more than 5 local_ads") 
     return
   }
 }  

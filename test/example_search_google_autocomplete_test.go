@@ -1,25 +1,25 @@
-
 package serpapi
 
 import (
   "testing"
+  "github.com/serpapi/serpapi-golang"
 )
 
 // basic use case
-func TestYahoo(t *testing.T) {
+func TestGoogleAutocomplete(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "yahoo",
+    "engine": "google_autocomplete",
     "api_key": *getApiKey(),
   }
-  client := NewClient(client_parameter)
+  client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{
-    "p": "coffee",
+  parameter := map[string]string{ 
+    "q": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +33,8 @@ func TestYahoo(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results")
+  if len(rsp["suggestions"].([]interface{})) < 5 {
+    t.Error("expect more than 5 suggestions") 
     return
   }
 }  
