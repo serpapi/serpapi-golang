@@ -23,6 +23,8 @@ doc:
 ready:
 	git status | grep "Nothing"
 
+# out of box testing 
+#  validate the pre-released library
 oobt:
 	mkdir -p /tmp/oobt
 	cp oobt/demo.go /tmp/oobt
@@ -31,9 +33,12 @@ oobt:
 		go get -u github.com/serpapi/serpapi-golang ; \
 		go run demo.go
 
+# show current version for golang and library
 version:
+  @echo "golang: " `go --version`
 	@echo "current version: ${version}"
 
+# display the current release information
 release: oobt version
 	git tag -a ${version}
 	git push origin ${version}
