@@ -6,9 +6,9 @@
 [![serpapi-go](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml)
 </div>
 
-Integrate search data into your Go application. This library is the official wrapper for SerpApi (https://serpapi.com).
+Integrate search data into your Go application. This library is the official wrapper for [SerpApi](https://serpapi.com).
 
-SerpApi supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and more.
+[SerpApi](https://serpapi.com) supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and more.
 
 ## Installation
 
@@ -588,9 +588,11 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "coffee",
- 
     "engine": "google",
+ 
+    "tbm": "isch",
+ 
+    "q": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -604,8 +606,8 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 organic_results") 
+  if len(rsp["images_results"].([]interface{})) < 5 {
+    fmt.Println("expect more than 5 images_results") 
     return
   }
 }  
@@ -706,34 +708,34 @@ see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-au
 
  func main() {
 
-  client_parameter := map[string]string{
-    "engine": "google_product",
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(client_parameter)
+	client_parameter := map[string]string{
+		"engine":  "google_product",
+		"api_key": "secret_api_key",
+	}
+	client := serpapi.NewClient(client_parameter)
 
-  parameter := map[string]string{ 
-    "q": "coffee",
- 
-    "product_id": "4172129135583325756",
-  }
-  rsp, err := client.Search(parameter)
+	parameter := map[string]string{
+		"q": "coffee",
 
-  if err != nil {
-    fmt.Println("unexpected error", err)
-    return
-  }
+		"product_id": "4172129135583325756",
+	}
+	rsp, err := client.Search(parameter)
 
-  if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
-    fmt.Println("bad status")
-    return
-  }
+	if err != nil {
+		fmt.Println("unexpected error", err)
+		return
+	}
 
-  if len(rsp["product_results"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 product_results") 
-    return
-  }
-}  
+	if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
+		fmt.Println("bad status")
+		return
+	}
+
+	if len(rsp["product_results"].(map[string]interface{})) < 5 {
+		fmt.Println("expect more than 5 product_results")
+		return
+	}
+}
 
 ```
 
@@ -840,7 +842,7 @@ see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-a
   parameter := map[string]string{ 
     "q": "Electrician",
  
-    "data_cid": "6745062158417646970",
+    "data_cid": "ChIJOwg_06VPwokRYv534QaPC8g",
   }
   rsp, err := client.Search(parameter)
 
@@ -970,8 +972,6 @@ see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
     "q": "kite",
  
     "store": "apps",
- 
-    "google_images": "{"engine"=>"google_images", "tbm"=>"isch", "q"=>"coffee", "results"=>"images_results"}",
   }
   rsp, err := client.Search(parameter)
 

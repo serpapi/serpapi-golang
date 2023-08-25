@@ -15,8 +15,12 @@ lint:
 test:
 	go test -v ./test
 
+# Ruby must be installed (ERB is located under $GEM_HOME/bin or under Ruby installation)
+readme:
+	erb -T '-' README.md.erb > README.md
+
 # create documentation
-doc:
+doc: readme
 	go doc
 
 # check that everything is pushed
