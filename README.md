@@ -19,60 +19,69 @@ go get -u github.com/serpapi/serpapi-golang
 ## Simple Usage
 
 ```golang
-require 'serpapi'
-client = SerpApi::Client.new api_key: "serpapi_api_key"
-results = client.search q: "coffee", engine: "google"
-pp results
+import "github.com/serpapi/serpapi-golang"
+
+client_parameter := map[string]string{
+  "engine": "google",
+  "api_key": "secret_api_key"
+}
+client := serpapi.NewClient(client_parameter)
+
+parameter := map[string]string{ 
+  "q": "coffee"
+}
+data, err := client.Search(parameter)
+fmt.Println(data)
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results as a regular Go Hash. See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google. It then returns the results a Go Hash. See the [playground](https://serpapi.com/playground) to generate your own code.
 
 ## Advanced Usage
 ### Search API
 ```golang
 
 func main() {
-	// serpapi client created with default parameters
-	client_parameter := map[string]string{
-		"api_key": "secret_key",
-		"timeout": "30",
-		"engine":  "google",
-	}
-	client := serpapi.NewClient(client_parameter)
+  // serpapi client created with default parameters
+  client_parameter := map[string]string{
+    "api_key": "secret_key",
+    "timeout": "30",
+    "engine":  "google",
+  }
+  client := serpapi.NewClient(client_parameter)
 
-	// We recommend that you keep your keys safe.
-	// At least, don't commit them in plain text.
-	// More about configuration via environment variables:
-	// https://hackernoon.com/all-the-secrets-of-encrypting-api-keys-in-golang-revealed-5qf3t5l
+  // We recommend that you keep your keys safe.
+  // At least, don't commit them in plain text.
+  // More about configuration via environment variables:
+  // https://hackernoon.com/all-the-secrets-of-encrypting-api-keys-in-golang-revealed-5qf3t5l
 
-	// search query overview (more fields available depending on search engine)
-	parameter := map[string]string{
-		"q":             "Coffee",
-		"location":      "Portland, Oregon, United States",
-		"hl":            "en",
-		"gl":            "us",
-		"google_domain": "google.com",
-		"safe":          "active",
-		"start":         "10",
-		"num":           "10",
-		"device":        "desktop",
-	}
+  // search query overview (more fields available depending on search engine)
+  parameter := map[string]string{
+    "q":             "Coffee",
+    "location":      "Portland, Oregon, United States",
+    "hl":            "en",
+    "gl":            "us",
+    "google_domain": "google.com",
+    "safe":          "active",
+    "start":         "10",
+    "num":           "10",
+    "device":        "desktop",
+  }
 
-	// formated search results as a Hash
-	// serpapi.com converts HTML -> JSON
-	rsp, err := client.Search(parameter)
+  // formated search results as a Hash
+  // serpapi.com converts HTML -> JSON
+  rsp, err := client.Search(parameter)
 
-	if err != nil {
-		panic(err)
-	}
+  if err != nil {
+    panic(err)
+  }
   fmt.Println(rsp)
 
   // raw search engine html as a String
   // serpapi.com acts a proxy to provive high throughputs, no search limit and more.
   raw_html, err := client.Html(parameter)
-	if err != nil { 
-		panic(err)
-	}
+  if err != nil { 
+    panic(err)
+  }
   fmt.Println(raw_html)
 }
 ```
@@ -152,9 +161,12 @@ This code prints the search results from the archive. :)
 
 ### Account API
 ```golang
-require 'serpapi'
-client = SerpApi::Client.new(api_key: 'secret_api_key')
-pp client.account
+parameter := map[string]string{
+ "api_key": "<secret_api_key>"
+}
+client := serpapi.NewClient(parameter)
+rsp, err = client.Account()
+fmt.Println(rsp)
 ```
 
 It prints your account information.
@@ -1062,7 +1074,7 @@ Go versions validated by Github Actions:
 see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
- * TODO [2023-08-01] 1.0.0 Full API support
+ * [2023-09-01] 1.0.0 Full API support
 
 ## Developer Guide
 ### Key goals
@@ -1078,13 +1090,13 @@ see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflo
  - KiSS principles
 
 ### Inspirations
-This project source code and coding style was inspired by the most awesome Go Gems:
- - TODO add reference
+This project source code and coding style was inspired by Go itself.
+This programming language native provides all the recommendation to build awesome software.
 
 ### Code quality expectations
  - 0 lint offense: `make lint`
  - 100% tests passing: `make test`
- - TODO 100% code coverage: `make test`
+ - 100% code coverage: `make test`
 
 # Developer Guide
 ## Design : UML diagram
