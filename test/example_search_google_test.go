@@ -19,11 +19,8 @@ func TestGoogle(t *testing.T) {
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
+    "q": "coffee", 
     "engine": "google",
- 
-    "tbm": "isch",
- 
-    "q": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -37,8 +34,8 @@ func TestGoogle(t *testing.T) {
     return
   }
 
-  if len(rsp["images_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 images_results") 
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

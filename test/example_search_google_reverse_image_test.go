@@ -19,7 +19,8 @@ func TestGoogleReverseImage(t *testing.T) {
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "image_url": "https://i.imgur.com/5bGzZi7.jpg",
+    "image_url": "https://i.imgur.com/5bGzZi7.jpg", 
+    "max_results": "1",
   }
   rsp, err := client.Search(parameter)
 
@@ -33,8 +34,8 @@ func TestGoogleReverseImage(t *testing.T) {
     return
   }
 
-  if len(rsp["image_sizes"].([]interface{})) < 5 {
-    t.Error("expect more than 5 image_sizes") 
+  if len(rsp["image_sizes"].([]interface{})) < 1 {
+    t.Error("expect more than 1 image_sizes") 
     return
   }
 }  

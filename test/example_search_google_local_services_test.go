@@ -19,9 +19,8 @@ func TestGoogleLocalServices(t *testing.T) {
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "Electrician",
- 
-    "data_cid": "ChIJOwg_06VPwokRYv534QaPC8g",
+    "q": "electrician", 
+    "data_cid": "6745062158417646970",
   }
   rsp, err := client.Search(parameter)
 

@@ -6,22 +6,22 @@ import (
 )
 
 // basic use case
-func TestGoogleMaps(t *testing.T) {
+func TestGoogleImages(t *testing.T) {
   if shoulSkip() {
     t.Skip("API_KEY required")
     return
   }
 
   client_parameter := map[string]string{
-    "engine": "google_maps",
+    "engine": "google_images",
     "api_key": *getApiKey(),
   }
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "pizza", 
-    "ll": "@40.7455096,-74.0083012,15.1z", 
-    "type": "search",
+    "engine": "google_images", 
+    "tbm": "isch", 
+    "q": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -35,8 +35,8 @@ func TestGoogleMaps(t *testing.T) {
     return
   }
 
-  if len(rsp["local_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 local_results") 
+  if len(rsp["images_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 images_results") 
     return
   }
 }  

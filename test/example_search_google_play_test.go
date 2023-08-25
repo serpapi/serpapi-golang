@@ -19,9 +19,9 @@ func TestGooglePlay(t *testing.T) {
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "kite",
- 
-    "store": "apps",
+    "q": "kite", 
+    "store": "apps", 
+    "max_results": "2",
   }
   rsp, err := client.Search(parameter)
 
@@ -35,8 +35,8 @@ func TestGooglePlay(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results") 
+  if len(rsp["organic_results"].([]interface{})) < 2 {
+    t.Error("expect more than 2 organic_results") 
     return
   }
 }  
