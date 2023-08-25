@@ -25,6 +25,7 @@ doc: readme
 
 # check that everything is pushed
 ready:
+	@echo "check if repository has changes"
 	git status | grep "Nothing"
 
 # out of box testing 

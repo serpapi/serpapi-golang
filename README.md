@@ -6,9 +6,9 @@
 [![serpapi-go](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml)
 </div>
 
-Integrate search data into your Go application. This library is the official wrapper for [SerpApi](https://serpapi.com).
+Integrate search data into your Go application. This library is the official wrapper for SerpApi (https://serpapi.com).
 
-[SerpApi](https://serpapi.com) supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and more.
+SerpApi supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and more.
 
 ## Installation
 
@@ -588,11 +588,8 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
+    "q": "coffee", 
     "engine": "google",
- 
-    "tbm": "isch",
- 
-    "q": "coffee",
   }
   rsp, err := client.Search(parameter)
 
@@ -606,8 +603,8 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
     return
   }
 
-  if len(rsp["images_results"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 images_results") 
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    fmt.Println("expect more than 5 organic_results") 
     return
   }
 }  
@@ -708,34 +705,33 @@ see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-au
 
  func main() {
 
-	client_parameter := map[string]string{
-		"engine":  "google_product",
-		"api_key": "secret_api_key",
-	}
-	client := serpapi.NewClient(client_parameter)
+  client_parameter := map[string]string{
+    "engine": "google_product",
+    "api_key": "secret_api_key",
+  }
+  client := serpapi.NewClient(client_parameter)
 
-	parameter := map[string]string{
-		"q": "coffee",
+  parameter := map[string]string{ 
+    "q": "coffee", 
+    "product_id": "4887235756540435899",
+  }
+  rsp, err := client.Search(parameter)
 
-		"product_id": "4172129135583325756",
-	}
-	rsp, err := client.Search(parameter)
+  if err != nil {
+    fmt.Println("unexpected error", err)
+    return
+  }
 
-	if err != nil {
-		fmt.Println("unexpected error", err)
-		return
-	}
+  if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
+    fmt.Println("bad status")
+    return
+  }
 
-	if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
-		fmt.Println("bad status")
-		return
-	}
-
-	if len(rsp["product_results"].(map[string]interface{})) < 5 {
-		fmt.Println("expect more than 5 product_results")
-		return
-	}
-}
+  if len(rsp["product_results"].(map[string]interface{})) < 5 {
+    fmt.Println("expect more than  5 product_results")
+    return
+  }
+}  
 
 ```
 
@@ -758,7 +754,8 @@ see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "image_url": "https://i.imgur.com/5bGzZi7.jpg",
+    "image_url": "https://i.imgur.com/5bGzZi7.jpg", 
+    "max_results": "1",
   }
   rsp, err := client.Search(parameter)
 
@@ -772,8 +769,8 @@ see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product
     return
   }
 
-  if len(rsp["image_sizes"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 image_sizes") 
+  if len(rsp["image_sizes"].([]interface{})) < 1 {
+    fmt.Println("expect more than 1 image_sizes") 
     return
   }
 }  
@@ -840,9 +837,8 @@ see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-a
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "Electrician",
- 
-    "data_cid": "ChIJOwg_06VPwokRYv534QaPC8g",
+    "q": "electrician", 
+    "data_cid": "6745062158417646970",
   }
   rsp, err := client.Search(parameter)
 
@@ -883,10 +879,8 @@ see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "pizza",
- 
-    "ll": "@40.7455096,-74.0083012,15.1z",
- 
+    "q": "pizza", 
+    "ll": "@40.7455096,-74.0083012,15.1z", 
     "type": "search",
   }
   rsp, err := client.Search(parameter)
@@ -969,9 +963,9 @@ see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
   client := serpapi.NewClient(client_parameter)
 
   parameter := map[string]string{ 
-    "q": "kite",
- 
-    "store": "apps",
+    "q": "kite", 
+    "store": "apps", 
+    "max_results": "2",
   }
   rsp, err := client.Search(parameter)
 
@@ -985,8 +979,8 @@ see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 organic_results") 
+  if len(rsp["organic_results"].([]interface{})) < 2 {
+    fmt.Println("expect more than 2 organic_results") 
     return
   }
 }  
