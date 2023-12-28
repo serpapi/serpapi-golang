@@ -171,9 +171,9 @@ fmt.Println(rsp)
 
 It prints your account information.
 
-## Basic example per search engine
+## Basic examples in Go
 ### Search bing
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -214,7 +214,7 @@ It prints your account information.
 see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
 
 ### Search baidu
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -255,7 +255,7 @@ see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
 see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
 
 ### Search yahoo
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -296,7 +296,7 @@ see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api
 see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
 
 ### Search youtube
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -337,7 +337,7 @@ see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api
 see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
 
 ### Search walmart
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -378,7 +378,7 @@ see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search
 see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
 
 ### Search ebay
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -419,7 +419,7 @@ see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search
 see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 
 ### Search naver
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -460,7 +460,7 @@ see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
 
 ### Search home depot
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -501,7 +501,7 @@ see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api
 see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
 
 ### Search apple app store
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -542,7 +542,7 @@ see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-
 see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 
 ### Search duckduckgo
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -583,7 +583,7 @@ see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
 ### Search google
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -625,7 +625,7 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
 see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
 
 ### Search google scholar
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -666,7 +666,7 @@ see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
 see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
 ### Search google autocomplete
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -707,7 +707,7 @@ see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar
 see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
 ### Search google product
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -749,7 +749,7 @@ see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-au
 see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
 ### Search google reverse image
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -791,7 +791,7 @@ see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product
 see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
 ### Search google events
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -832,7 +832,7 @@ see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-rever
 see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
 ### Search google local services
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -874,7 +874,7 @@ see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-a
 see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
 ### Search google maps
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -917,7 +917,7 @@ see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-
 see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
 ### Search google jobs
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -958,7 +958,7 @@ see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
 ### Search google play
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -1013,7 +1013,7 @@ Search API enables `async` search.
  - Blocking (`async=false`) : it's easy to write the code but more compute-intensive when the parent process needs to hold many connections.
 
 Here is an example of asynchronous searches using Go 
-```
+```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -1160,3 +1160,7 @@ Install testing dependency
 $ make
 ```
 Contributions are welcome. Feel to submit a pull request!
+
+## License
+
+MIT License.

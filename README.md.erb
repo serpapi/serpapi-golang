@@ -11,7 +11,7 @@ def snippet(format, path, demo = false)
   buf.gsub!("t.Error", "fmt.Println")
 
  end
- %Q(```
+ %Q(```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
   "fmt"
@@ -194,7 +194,7 @@ fmt.Println(rsp)
 
 It prints your account information.
 
-## Basic example per search engine
+## Basic examples in Go
 ### Search bing
 <%= snippet('golang', 'test/example_search_bing_test.go') %>
 see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
@@ -386,3 +386,7 @@ Install testing dependency
 $ make
 ```
 Contributions are welcome. Feel to submit a pull request!
+
+## License
+
+MIT License.
