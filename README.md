@@ -211,7 +211,7 @@ It prints your account information.
 ```
 
  * source code: [test/example_search_bing_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_bing_test.go)
-see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
+ * see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
 
 ### Search baidu
 ```golang
@@ -252,7 +252,7 @@ see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
 ```
 
  * source code: [test/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_baidu_test.go)
-see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
+ * see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
 
 ### Search yahoo
 ```golang
@@ -293,7 +293,7 @@ see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api
 ```
 
  * source code: [test/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_yahoo_test.go)
-see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
+ * see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
 
 ### Search youtube
 ```golang
@@ -334,7 +334,7 @@ see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api
 ```
 
  * source code: [test/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_youtube_test.go)
-see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
+ *  * see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
 
 ### Search walmart
 ```golang
@@ -375,7 +375,7 @@ see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search
 ```
 
  * source code: [test/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_walmart_test.go)
-see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
+ * see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
 
 ### Search ebay
 ```golang
@@ -416,7 +416,7 @@ see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search
 ```
 
  * source code: [test/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_ebay_test.go)
-see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
+ * see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 
 ### Search naver
 ```golang
@@ -457,7 +457,7 @@ see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 ```
 
  * source code: [test/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_naver_test.go)
-see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
+ * see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
 
 ### Search home depot
 ```golang
@@ -498,7 +498,7 @@ see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api
 ```
 
  * source code: [test/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_home_depot_test.go)
-see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
+ * see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
 
 ### Search apple app store
 ```golang
@@ -539,7 +539,7 @@ see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-
 ```
 
  * source code: [test/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_apple_app_store_test.go)
-see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
+ * see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 
 ### Search duckduckgo
 ```golang
@@ -580,7 +580,7 @@ see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 ```
 
  * source code: [test/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_duckduckgo_test.go)
-see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
+ * see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
 ### Search google
 ```golang
@@ -622,7 +622,7 @@ see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-
 ```
 
  * source code: [test/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_test.go)
-see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
+ * see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
 
 ### Search google scholar
 ```golang
@@ -663,7 +663,7 @@ see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
 ```
 
  * source code: [test/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_scholar_test.go)
-see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
+ * see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
 ### Search google autocomplete
 ```golang
@@ -704,7 +704,7 @@ see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar
 ```
 
  * source code: [test/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_autocomplete_test.go)
-see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
+ * see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
 ### Search google product
 ```golang
@@ -746,7 +746,7 @@ see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-au
 ```
 
  * source code: [test/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_product_test.go)
-see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product-api)
+ * see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
 ### Search google reverse image
 ```golang
@@ -788,7 +788,7 @@ see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product
 ```
 
  * source code: [test/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_reverse_image_test.go)
-see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
+ * see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
 ### Search google events
 ```golang
@@ -829,7 +829,7 @@ see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-rever
 ```
 
  * source code: [test/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_events_test.go)
-see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-api)
+ * see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
 ### Search google local services
 ```golang
@@ -871,7 +871,7 @@ see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-a
 ```
 
  * source code: [test/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_local_services_test.go)
-see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
+ * see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
 ### Search google maps
 ```golang
@@ -914,7 +914,7 @@ see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-
 ```
 
  * source code: [test/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_maps_test.go)
-see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
+ * see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
 ### Search google jobs
 ```golang
@@ -955,7 +955,7 @@ see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 ```
 
  * source code: [test/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_jobs_test.go)
-see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
+ * see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
 ### Search google play
 ```golang
@@ -998,7 +998,7 @@ see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 ```
 
  * source code: [test/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example_search_google_play_test.go)
-see: [https://serpapi.com/google-play-api](https://serpapi.com/google-play-api)
+ * see: [https://serpapi.com/google-play-api](https://serpapi.com/google-play-api)
 
 
 ## Advanced search API usage
@@ -1068,9 +1068,7 @@ This code shows a simple solution to batch searches asynchronously into a [queue
 Each search takes a few seconds before completion by SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might be already available in the archive. If not, the `search_archive` method blocks until the search results are available. 
 
 ## Supported Go version.
-Go versions validated by Github Actions:
- - 3.1
- - 2.6
+Go versions validated by Github Actions: 1.7
 see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
