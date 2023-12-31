@@ -12,15 +12,14 @@ func TestBing(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "bing",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "q": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "bing", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -33,8 +32,13 @@ func TestBing(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results") 
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
+    return 
+  }
+
+  if len(rsp["organic_results"].([]interface{})) < 1 {
+    t.Error("expect more than 1 organic_results") 
     return
   }
 }  

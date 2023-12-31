@@ -44,13 +44,13 @@ go get -u github.com/serpapi/serpapi-golang
 ```golang
 import "github.com/serpapi/serpapi-golang"
 
-client_parameter := map[string]string{
-  "engine": "google",
+auth := map[string]string{
   "api_key": "secret_api_key"
 }
-client := serpapi.NewClient(client_parameter)
+client := serpapi.NewClient(auth)
 
 parameter := map[string]string{ 
+  "engine": "google",
   "q": "coffee"
 }
 data, err := client.Search(parameter)
@@ -65,12 +65,12 @@ This example runs a search for "coffee" on Google. It then returns the results a
 
 func main() {
   // serpapi client created with default parameters
-  client_parameter := map[string]string{
+  auth := map[string]string{
     "api_key": "secret_key",
     "timeout": "30",
     "engine":  "google",
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
   // We recommend that you keep your keys safe.
   // At least, don't commit them in plain text.
@@ -145,11 +145,11 @@ To fetch earlier results from the search_id.
 First, you need to run a search and save the search id.
 ```golang
 // First, you need to run a search and save the search id.
-client_parameter := map[string]string{
+auth := map[string]string{
   "engine":  "google",
   "api_key": "secret_api_key",
 }
-client := serpapi.NewClient(client_parameter)
+client := serpapi.NewClient(auth)
 parameter := map[string]string{
   "q":        "Coffee",
   "location": "Portland"}
@@ -184,10 +184,10 @@ This code prints the search results from the archive. :)
 
 ### Account API
 ```golang
-parameter := map[string]string{
+auth := map[string]string{
  "api_key": "<secret_api_key>"
 }
-client := serpapi.NewClient(parameter)
+client := serpapi.NewClient(auth)
 rsp, err = client.Account()
 fmt.Println(rsp)
 ```

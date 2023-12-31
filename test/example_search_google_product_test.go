@@ -12,16 +12,15 @@ func TestGoogleProduct(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_product",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
+  parameter := map[string]string{
+    "engine": "google_product", 
     "q": "coffee", 
-    "product_id": "4887235756540435899",
-  }
+    "product_id": "4887235756540435899",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,6 +31,11 @@ func TestGoogleProduct(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["product_results"] == nil {
+    t.Error("key is not found: product_results")
+    return 
   }
 
   if len(rsp["product_results"].(map[string]interface{})) < 5 {

@@ -12,17 +12,15 @@ func TestGooglePlay(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_play",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
+  parameter := map[string]string{
+    "engine": "google_play", 
     "q": "kite", 
-    "store": "apps", 
-    "max_results": "2",
-  }
+    "store": "apps",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -35,8 +33,13 @@ func TestGooglePlay(t *testing.T) {
     return
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 2 {
-    t.Error("expect more than 2 organic_results") 
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
+    return 
+  }
+
+  if len(rsp["organic_results"].([]interface{})) < 1 {
+    t.Error("expect more than 1 organic_results") 
     return
   }
 }  

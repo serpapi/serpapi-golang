@@ -12,15 +12,14 @@ func TestWalmart(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "walmart",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "query": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "walmart", 
+    "query": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestWalmart(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
+    return 
   }
 
   if len(rsp["organic_results"].([]interface{})) < 5 {

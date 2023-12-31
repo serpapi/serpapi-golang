@@ -17,12 +17,12 @@ func main() {
 	if len(api_key) == 0 {
 		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
 	}
-	client_parameter := map[string]string{
+	auth := map[string]string{
 		"api_key": api_key,
-		"engine":  "google",
 	}
-	client := serpapi.NewClient(client_parameter)
+	client := serpapi.NewClient(auth)
 	parameter := map[string]string{
+		"engine":  "google",
 		"q":        "Coffee",
 		"location": "Austin,Texas",
 	}

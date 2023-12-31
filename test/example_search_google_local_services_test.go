@@ -12,16 +12,15 @@ func TestGoogleLocalServices(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_local_services",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
+  parameter := map[string]string{
+    "engine": "google_local_services", 
     "q": "electrician", 
-    "data_cid": "6745062158417646970",
-  }
+    "data_cid": "6745062158417646970",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,6 +31,11 @@ func TestGoogleLocalServices(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["local_ads"] == nil {
+    t.Error("key is not found: local_ads")
+    return 
   }
 
   if len(rsp["local_ads"].([]interface{})) < 5 {

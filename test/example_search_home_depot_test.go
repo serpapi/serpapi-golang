@@ -12,15 +12,14 @@ func TestHomeDepot(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "home_depot",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "q": "table",
-  }
+  parameter := map[string]string{
+    "engine": "home_depot", 
+    "q": "table",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestHomeDepot(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["products"] == nil {
+    t.Error("key is not found: products")
+    return 
   }
 
   if len(rsp["products"].([]interface{})) < 5 {

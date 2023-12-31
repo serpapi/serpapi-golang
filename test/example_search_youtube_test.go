@@ -12,15 +12,14 @@ func TestYoutube(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "youtube",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "search_query": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "youtube", 
+    "search_query": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestYoutube(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["video_results"] == nil {
+    t.Error("key is not found: video_results")
+    return 
   }
 
   if len(rsp["video_results"].([]interface{})) < 5 {

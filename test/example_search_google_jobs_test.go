@@ -12,15 +12,14 @@ func TestGoogleJobs(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_jobs",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "q": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "google_jobs", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestGoogleJobs(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["jobs_results"] == nil {
+    t.Error("key is not found: jobs_results")
+    return 
   }
 
   if len(rsp["jobs_results"].([]interface{})) < 5 {

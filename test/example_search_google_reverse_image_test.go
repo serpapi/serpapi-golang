@@ -12,16 +12,14 @@ func TestGoogleReverseImage(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_reverse_image",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "image_url": "https://i.imgur.com/5bGzZi7.jpg", 
-    "max_results": "1",
-  }
+  parameter := map[string]string{
+    "engine": "google_reverse_image", 
+    "image_url": "https://i.imgur.com/5bGzZi7.jpg",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,6 +30,11 @@ func TestGoogleReverseImage(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["image_sizes"] == nil {
+    t.Error("key is not found: image_sizes")
+    return 
   }
 
   if len(rsp["image_sizes"].([]interface{})) < 1 {

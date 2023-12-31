@@ -12,15 +12,14 @@ func TestNaver(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "naver",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "query": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "naver", 
+    "query": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestNaver(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["ads_results"] == nil {
+    t.Error("key is not found: ads_results")
+    return 
   }
 
   if len(rsp["ads_results"].([]interface{})) < 5 {

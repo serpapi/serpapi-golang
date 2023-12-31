@@ -12,15 +12,14 @@ func TestGoogleAutocomplete(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_autocomplete",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
-    "q": "coffee",
-  }
+  parameter := map[string]string{
+    "engine": "google_autocomplete", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -31,6 +30,11 @@ func TestGoogleAutocomplete(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["suggestions"] == nil {
+    t.Error("key is not found: suggestions")
+    return 
   }
 
   if len(rsp["suggestions"].([]interface{})) < 5 {

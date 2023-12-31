@@ -12,17 +12,16 @@ func TestGoogleMaps(t *testing.T) {
     return
   }
 
-  client_parameter := map[string]string{
-    "engine": "google_maps",
+  auth := map[string]string{
     "api_key": *getApiKey(),
   }
-  client := serpapi.NewClient(client_parameter)
+  client := serpapi.NewClient(auth)
 
-  parameter := map[string]string{ 
+  parameter := map[string]string{
+    "engine": "google_maps", 
     "q": "pizza", 
     "ll": "@40.7455096,-74.0083012,15.1z", 
-    "type": "search",
-  }
+    "type": "search",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -33,6 +32,11 @@ func TestGoogleMaps(t *testing.T) {
   if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
     t.Error("bad status")
     return
+  }
+
+  if rsp["local_results"] == nil {
+    t.Error("key is not found: local_results")
+    return 
   }
 
   if len(rsp["local_results"].([]interface{})) < 5 {
