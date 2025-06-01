@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleJobs(t *testing.T) {
+// example test for home_depot engine
+// doc: https://serpapi.com/home-depot-search-api
+//
+func TestHomeDepot(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestGoogleJobs(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_jobs", 
-    "q": "coffee",  }
+    "engine": "home_depot", 
+    "q": "table",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +34,13 @@ func TestGoogleJobs(t *testing.T) {
     return
   }
 
-  if rsp["jobs_results"] == nil {
-    t.Error("key is not found: jobs_results")
+  if rsp["products"] == nil {
+    t.Error("key is not found: products")
     return 
   }
 
-  if len(rsp["jobs_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 jobs_results") 
+  if len(rsp["products"].([]interface{})) < 5 {
+    t.Error("expect more than 5 products") 
     return
   }
 }  

@@ -13,7 +13,19 @@ lint:
 
 # run integration test suite
 test:
-	go test -v ./test
+	go test -v ./*.go
+
+# run code coverage (not working)
+coverage:
+	@echo "Run code coverage"
+	go test -cover -covermode=count -coverprofile=coverage.out ./*.go
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+# run examples 
+regression: 
+	@echo "run regression tests"
+	go test -v ./examples/*.go
 
 # Ruby must be installed (ERB is located under $GEM_HOME/bin or under Ruby installation)
 readme:

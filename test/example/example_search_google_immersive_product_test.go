@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleEvents(t *testing.T) {
+// example test for google_immersive_product engine
+// doc: https://serpapi.com/google-immersive-product-api
+//
+func TestGoogleImmersiveProduct(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,7 +20,7 @@ func TestGoogleEvents(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_events", 
+    "engine": "google_immersive_product", 
     "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
@@ -32,13 +34,13 @@ func TestGoogleEvents(t *testing.T) {
     return
   }
 
-  if rsp["events_results"] == nil {
-    t.Error("key is not found: events_results")
+  if rsp["immersive_product_results"] == nil {
+    t.Error("key is not found: immersive_product_results")
     return 
   }
 
-  if len(rsp["events_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 events_results") 
+  if len(rsp["immersive_product_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 immersive_product_results") 
     return
   }
 }  

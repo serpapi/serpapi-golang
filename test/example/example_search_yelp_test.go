@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGooglePlay(t *testing.T) {
+// example test for yelp engine
+// doc: https://serpapi.com/yelp-search-api
+//
+func TestYelp(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,9 +20,9 @@ func TestGooglePlay(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_play", 
-    "q": "kite", 
-    "store": "apps",  }
+    "engine": "yelp", 
+    "find_desc": "Coffee", 
+    "find_loc": "New York, NY, USA",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -38,8 +40,8 @@ func TestGooglePlay(t *testing.T) {
     return 
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 1 {
-    t.Error("expect more than 1 organic_results") 
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

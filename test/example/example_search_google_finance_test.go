@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleReverseImage(t *testing.T) {
+// example test for google_finance engine
+// doc: https://serpapi.com/google-finance-api
+//
+func TestGoogleFinance(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestGoogleReverseImage(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_reverse_image", 
-    "image_url": "https://i.imgur.com/5bGzZi7.jpg",  }
+    "engine": "google_finance", 
+    "q": "GOOG:NASDAQ",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +34,13 @@ func TestGoogleReverseImage(t *testing.T) {
     return
   }
 
-  if rsp["image_sizes"] == nil {
-    t.Error("key is not found: image_sizes")
+  if rsp["markets"] == nil {
+    t.Error("key is not found: markets")
     return 
   }
 
-  if len(rsp["image_sizes"].([]interface{})) < 1 {
-    t.Error("expect more than 1 image_sizes") 
+  if len(rsp["markets"].([]interface{})) < 5 {
+    t.Error("expect more than 5 markets") 
     return
   }
 }  

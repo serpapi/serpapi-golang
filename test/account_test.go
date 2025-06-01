@@ -6,7 +6,7 @@ import (
 	"github.com/serpapi/serpapi-golang"
 )
 
-
+// doc: https://serpapi.com/account-api
 func TestAccount(t *testing.T) {
 	// Skip this test
 	if shoulSkip() {
@@ -28,8 +28,8 @@ func TestAccount(t *testing.T) {
 		return
 	}
 
-	if rsp["account_id"] == nil {
-		t.Error("no account_id found")
+	if _, exists := rsp["account_id"]; !exists {
+		t.Error("key account_id does not exist in response")
 		return
 	}
 }

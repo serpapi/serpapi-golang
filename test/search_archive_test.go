@@ -7,6 +7,7 @@ import (
 )
 
 // Search archive API
+// doc: https://serpapi.com/search-archive-api
 func TestSearchArchive(t *testing.T) {
 	if shoulSkip() {
 		t.Skip("API_KEY required")

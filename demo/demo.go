@@ -13,7 +13,7 @@ import (
  * go get -u github.com/serpapi/serpapi-golang
  */
 func main() {
-	api_key := os.Getenv("API_KEY")
+	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
 		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
 	}
@@ -36,5 +36,5 @@ func main() {
 	fmt.Println("search first result:")
 	firstResult := results[0].(map[string]interface{})
 	fmt.Println(firstResult["title"].(string))
-	fmt.Println("ok: oobt test passed")
+	fmt.Println("done")
 }

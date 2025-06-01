@@ -5,7 +5,7 @@ import (
 )
 
 func getApiKey() *string {
-	apiKey := os.Getenv("API_KEY")
+	apiKey := os.Getenv("SERPAPI_KEY")
 	if len(apiKey) == 0 {
 		return nil
 	}

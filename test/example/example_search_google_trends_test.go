@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleMaps(t *testing.T) {
+// example test for google_trends engine
+// doc: https://serpapi.com/google-trends-api
+//
+func TestGoogleTrends(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,10 +20,9 @@ func TestGoogleMaps(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_maps", 
-    "q": "pizza", 
-    "ll": "@40.7455096,-74.0083012,15.1z", 
-    "type": "search",  }
+    "engine": "google_trends", 
+    "q": "coffee,milk,bread,pasta,steak", 
+    "data_type": "TIMESERIES",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -34,13 +35,13 @@ func TestGoogleMaps(t *testing.T) {
     return
   }
 
-  if rsp["local_results"] == nil {
-    t.Error("key is not found: local_results")
+  if rsp["interest_over_time"] == nil {
+    t.Error("key is not found: interest_over_time")
     return 
   }
 
-  if len(rsp["local_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 local_results") 
+  if len(rsp["interest_over_time"].([]interface{})) < 5 {
+    t.Error("expect more than 5 interest_over_time") 
     return
   }
 }  

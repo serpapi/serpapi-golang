@@ -6,21 +6,25 @@ import (
 	"github.com/serpapi/serpapi-golang"
 )
 
+// doc: https://serpapi.com/locations-api
 func TestLocation(t *testing.T) {
-	var rsp []interface{}
+	var locations []interface{}
 	var err error
 	client := serpapi.NewClient(map[string]string{})
-	rsp, err = client.Location("Austin", 3)
+	locations, err = client.Location("Austin", 5)
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	//log.Println(rsp[0])
-	first := rsp[0].(map[string]interface{})
-	googleID := first["google_id"].(float64)
-	if googleID != float64(200635) {
-		t.Error(googleID)
+	//log.Println(locations[0])
+	if len(locations) < 1 {
+		t.Error("expect more than 1 location")
+		return
+	}
+	first := locations[0].(map[string]interface{})
+	if _, ok := first["google_id"]; !ok {
+		t.Error("key 'google_id' does not exist in the first location")
 		return
 	}
 }

@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestYoutube(t *testing.T) {
+// example test for google_patents engine
+// doc: https://serpapi.com/google-patents-api
+//
+func TestGooglePatents(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestYoutube(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "youtube", 
-    "search_query": "coffee",  }
+    "engine": "google_patents", 
+    "q": "(Coffee)",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +34,13 @@ func TestYoutube(t *testing.T) {
     return
   }
 
-  if rsp["video_results"] == nil {
-    t.Error("key is not found: video_results")
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
     return 
   }
 
-  if len(rsp["video_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 video_results") 
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

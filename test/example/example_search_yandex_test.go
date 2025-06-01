@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleScholar(t *testing.T) {
+// example test for yandex engine
+// doc: https://serpapi.com/yandex-search-api
+//
+func TestYandex(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestGoogleScholar(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_scholar", 
-    "q": "coffee",  }
+    "engine": "yandex", 
+    "text": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {

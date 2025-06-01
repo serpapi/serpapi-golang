@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogle(t *testing.T) {
+// example test for google_jobs engine
+// doc: https://serpapi.com/google-jobs-api
+//
+func TestGoogleJobs(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,7 +20,7 @@ func TestGoogle(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google", 
+    "engine": "google_jobs", 
     "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
@@ -32,13 +34,13 @@ func TestGoogle(t *testing.T) {
     return
   }
 
-  if rsp["organic_results"] == nil {
-    t.Error("key is not found: organic_results")
+  if rsp["jobs_results"] == nil {
+    t.Error("key is not found: jobs_results")
     return 
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results") 
+  if len(rsp["jobs_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 jobs_results") 
     return
   }
 }  

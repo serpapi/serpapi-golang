@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestNaver(t *testing.T) {
+// example test for google_play engine
+// doc: https://serpapi.com/google-play-api
+//
+func TestGooglePlay(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,9 @@ func TestNaver(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "naver", 
-    "query": "coffee",  }
+    "engine": "google_play", 
+    "q": "kite", 
+    "store": "apps",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +35,13 @@ func TestNaver(t *testing.T) {
     return
   }
 
-  if rsp["ads_results"] == nil {
-    t.Error("key is not found: ads_results")
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
     return 
   }
 
-  if len(rsp["ads_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 ads_results") 
+  if len(rsp["organic_results"].([]interface{})) < 1 {
+    t.Error("expect more than 1 organic_results") 
     return
   }
 }  

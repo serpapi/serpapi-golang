@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestWalmart(t *testing.T) {
+// example test for amazon engine
+// doc: https://serpapi.com/amazon-search-api
+//
+func TestAmazon(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestWalmart(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "walmart", 
-    "query": "coffee",  }
+    "engine": "amazon", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {

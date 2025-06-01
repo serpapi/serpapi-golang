@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestHomeDepot(t *testing.T) {
+// example test for google_lens engine
+// doc: https://serpapi.com/google-lens-api
+//
+func TestGoogleLens(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestHomeDepot(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "home_depot", 
-    "q": "table",  }
+    "engine": "google_lens", 
+    "url": "https://i.imgur.com/HBrB8p0.png",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +34,13 @@ func TestHomeDepot(t *testing.T) {
     return
   }
 
-  if rsp["products"] == nil {
-    t.Error("key is not found: products")
+  if rsp["visual_matches"] == nil {
+    t.Error("key is not found: visual_matches")
     return 
   }
 
-  if len(rsp["products"].([]interface{})) < 5 {
-    t.Error("expect more than 5 products") 
+  if len(rsp["visual_matches"].([]interface{})) < 5 {
+    t.Error("expect more than 5 visual_matches") 
     return
   }
 }  

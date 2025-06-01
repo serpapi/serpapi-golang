@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestYahoo(t *testing.T) {
+// example test for duckduckgo engine
+// doc: https://serpapi.com/duckduckgo-search-api
+//
+func TestDuckduckgo(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestYahoo(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "yahoo", 
-    "p": "coffee",  }
+    "engine": "duckduckgo", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {

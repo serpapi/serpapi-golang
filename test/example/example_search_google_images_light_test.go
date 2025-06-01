@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestDuckduckgo(t *testing.T) {
+// example test for google_images_light engine
+// doc: https://serpapi.com/google-images-light-api
+//
+func TestGoogleImagesLight(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,8 +20,8 @@ func TestDuckduckgo(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "duckduckgo", 
-    "q": "coffee",  }
+    "engine": "google_images_light", 
+    "q": "Coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -32,13 +34,13 @@ func TestDuckduckgo(t *testing.T) {
     return
   }
 
-  if rsp["organic_results"] == nil {
-    t.Error("key is not found: organic_results")
+  if rsp["images_results"] == nil {
+    t.Error("key is not found: images_results")
     return 
   }
 
-  if len(rsp["organic_results"].([]interface{})) < 5 {
-    t.Error("expect more than 5 organic_results") 
+  if len(rsp["images_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 images_results") 
     return
   }
 }  

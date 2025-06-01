@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleProduct(t *testing.T) {
+// example test for apple_app_store engine
+// doc: https://serpapi.com/apple-app-store
+//
+func TestAppleAppStore(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,9 +20,8 @@ func TestGoogleProduct(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_product", 
-    "q": "coffee", 
-    "product_id": "4887235756540435899",  }
+    "engine": "apple_app_store", 
+    "term": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -33,13 +34,13 @@ func TestGoogleProduct(t *testing.T) {
     return
   }
 
-  if rsp["product_results"] == nil {
-    t.Error("key is not found: product_results")
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
     return 
   }
 
-  if len(rsp["product_results"].(map[string]interface{})) < 5 {
-    t.Error("expect more than  5 product_results")
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

@@ -5,10 +5,12 @@ import (
   "github.com/serpapi/serpapi-golang"
 )
 
-// basic use case
-func TestGoogleLocalServices(t *testing.T) {
+// example test for baidu engine
+// doc: https://serpapi.com/baidu-search-api
+//
+func TestBaidu(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
@@ -18,9 +20,8 @@ func TestGoogleLocalServices(t *testing.T) {
   client := serpapi.NewClient(auth)
 
   parameter := map[string]string{
-    "engine": "google_local_services", 
-    "q": "electrician", 
-    "data_cid": "6745062158417646970",  }
+    "engine": "baidu", 
+    "q": "coffee",  }
   rsp, err := client.Search(parameter)
 
   if err != nil {
@@ -33,13 +34,13 @@ func TestGoogleLocalServices(t *testing.T) {
     return
   }
 
-  if rsp["local_ads"] == nil {
-    t.Error("key is not found: local_ads")
+  if rsp["organic_results"] == nil {
+    t.Error("key is not found: organic_results")
     return 
   }
 
-  if len(rsp["local_ads"].([]interface{})) < 5 {
-    t.Error("expect more than 5 local_ads") 
+  if len(rsp["organic_results"].([]interface{})) < 5 {
+    t.Error("expect more than 5 organic_results") 
     return
   }
 }  

@@ -21,10 +21,9 @@ def snippet(format, path, demo = false)
 #{buf}\n```\n\n * source code: [#{path}](https://github.com/serpapi/serpapi-golang/blob/master/#{path}))
 end
 -%>
-<div align="center">
-<h1 align="center">SerpApi Go Library</h1>
+## SerpApi Go Library
 
-[![serpapi-go](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml/badge.svg?branch=master)](https://github.com/serpapi/serpapi-golang/actions/workflows/go.yml)
+[![serpapi-go](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 </div>
 
 Integrate search data into your Go application. This library is the official wrapper for [SerpApi](https://serpapi.com).
@@ -195,86 +194,154 @@ fmt.Println(rsp)
 It prints your account information.
 
 ## Basic examples in Go
-### Search bing
-<%= snippet('golang', 'test/example_search_bing_test.go') %>
-see: [https://serpapi.com/bing-search-api](https://serpapi.com/bing-search-api)
-
-### Search baidu
-<%= snippet('golang', 'test/example_search_baidu_test.go') %>
-see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
-
-### Search yahoo
-<%= snippet('golang', 'test/example_search_yahoo_test.go') %>
-see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
-
-### Search youtube
-<%= snippet('golang', 'test/example_search_youtube_test.go') %>
-see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
-
-### Search walmart
-<%= snippet('golang', 'test/example_search_walmart_test.go') %>
-see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
-
-### Search ebay
-<%= snippet('golang', 'test/example_search_ebay_test.go') %>
-see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
-
-### Search naver
-<%= snippet('golang', 'test/example_search_naver_test.go') %>
-see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
-
-### Search home depot
-<%= snippet('golang', 'test/example_search_home_depot_test.go') %>
-see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
-
-### Search apple app store
-<%= snippet('golang', 'test/example_search_apple_app_store_test.go') %>
-see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
-
-### Search duckduckgo
-<%= snippet('golang', 'test/example_search_duckduckgo_test.go') %>
-see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
 ### Search google
-<%= snippet('golang', 'test/example_search_google_test.go') %>
-see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
+<%= snippet('golang', 'test/example/example_search_google_test.go') %>
+* see: [serpapi.com/search-api](https://serpapi.com/search-api)
+
+### Search google light
+<%= snippet('golang', 'test/example/example_search_google_light_test.go') %>
+* see: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
 
 ### Search google scholar
-<%= snippet('golang', 'test/example_search_google_scholar_test.go') %>
-see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
+<%= snippet('golang', 'test/example/example_search_google_scholar_test.go') %>
+* see: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
 ### Search google autocomplete
-<%= snippet('golang', 'test/example_search_google_autocomplete_test.go') %>
-see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
+<%= snippet('golang', 'test/example/example_search_google_autocomplete_test.go') %>
+* see: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
 ### Search google product
-<%= snippet('golang', 'test/example_search_google_product_test.go') %>
-see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product-api)
+<%= snippet('golang', 'test/example/example_search_google_product_test.go') %>
+* see: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
 ### Search google reverse image
-<%= snippet('golang', 'test/example_search_google_reverse_image_test.go') %>
-see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
+<%= snippet('golang', 'test/example/example_search_google_reverse_image_test.go') %>
+* see: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
 ### Search google events
-<%= snippet('golang', 'test/example_search_google_events_test.go') %>
-see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-api)
+<%= snippet('golang', 'test/example/example_search_google_events_test.go') %>
+* see: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
 ### Search google local services
-<%= snippet('golang', 'test/example_search_google_local_services_test.go') %>
-see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
+<%= snippet('golang', 'test/example/example_search_google_local_services_test.go') %>
+* see: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
 ### Search google maps
-<%= snippet('golang', 'test/example_search_google_maps_test.go') %>
-see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
+<%= snippet('golang', 'test/example/example_search_google_maps_test.go') %>
+* see: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
 ### Search google jobs
-<%= snippet('golang', 'test/example_search_google_jobs_test.go') %>
-see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
+<%= snippet('golang', 'test/example/example_search_google_jobs_test.go') %>
+* see: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
 ### Search google play
-<%= snippet('golang', 'test/example_search_google_play_test.go') %>
-see: [https://serpapi.com/google-play-api](https://serpapi.com/google-play-api)
+<%= snippet('golang', 'test/example/example_search_google_play_test.go') %>
+* see: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
 
+### Search google images
+<%= snippet('golang', 'test/example/example_search_google_images_test.go') %>
+* see: [serpapi.com/images-results](https://serpapi.com/images-results)
+
+### Search google lens
+<%= snippet('golang', 'test/example/example_search_google_lens_test.go') %>
+* see: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
+
+### Search google images light
+<%= snippet('golang', 'test/example/example_search_google_images_light_test.go') %>
+* see: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
+
+### Search google hotels
+<%= snippet('golang', 'test/example/example_search_google_hotels_test.go') %>
+* see: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
+
+### Search google flights
+<%= snippet('golang', 'test/example/example_search_google_flights_test.go') %>
+* see: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
+
+### Search google finance
+<%= snippet('golang', 'test/example/example_search_google_finance_test.go') %>
+* see: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
+
+### Search google ai overview
+<%= snippet('golang', 'test/example/example_search_google_ai_overview_test.go') %>
+* see: [serpapi.com/google-ai-overview-api](https://serpapi.com/google-ai-overview-api)
+
+### Search google news
+<%= snippet('golang', 'test/example/example_search_google_news_test.go') %>
+* see: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
+
+### Search google news light
+<%= snippet('golang', 'test/example/example_search_google_news_light_test.go') %>
+* see: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
+
+### Search google patents
+<%= snippet('golang', 'test/example/example_search_google_patents_test.go') %>
+* see: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
+
+### Search google trends
+<%= snippet('golang', 'test/example/example_search_google_trends_test.go') %>
+* see: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
+
+### Search google shopping
+<%= snippet('golang', 'test/example/example_search_google_shopping_test.go') %>
+* see: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
+
+### Search google immersive product
+<%= snippet('golang', 'test/example/example_search_google_immersive_product_test.go') %>
+* see: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
+
+### Search google videos
+<%= snippet('golang', 'test/example/example_search_google_videos_test.go') %>
+* see: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
+
+### Search amazon
+<%= snippet('golang', 'test/example/example_search_amazon_test.go') %>
+* see: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
+
+### Search baidu
+<%= snippet('golang', 'test/example/example_search_baidu_test.go') %>
+* see: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
+
+### Search yahoo
+<%= snippet('golang', 'test/example/example_search_yahoo_test.go') %>
+* see: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
+
+### Search youtube
+<%= snippet('golang', 'test/example/example_search_youtube_test.go') %>
+* see: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
+
+### Search walmart
+<%= snippet('golang', 'test/example/example_search_walmart_test.go') %>
+* see: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
+
+### Search ebay
+<%= snippet('golang', 'test/example/example_search_ebay_test.go') %>
+* see: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
+
+### Search naver
+<%= snippet('golang', 'test/example/example_search_naver_test.go') %>
+* see: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
+
+### Search home depot
+<%= snippet('golang', 'test/example/example_search_home_depot_test.go') %>
+* see: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
+
+### Search apple app store
+<%= snippet('golang', 'test/example/example_search_apple_app_store_test.go') %>
+* see: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
+
+### Search duckduckgo
+<%= snippet('golang', 'test/example/example_search_duckduckgo_test.go') %>
+* see: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
+
+### Search yandex
+<%= snippet('golang', 'test/example/example_search_yandex_test.go') %>
+* see: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
+
+### Search yelp
+<%= snippet('golang', 'test/example/example_search_yelp_test.go') %>
+* see: [serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
 
 ## Advanced search API usage
 ### Highly scalable batching
@@ -288,19 +355,18 @@ Search API enables `async` search.
  - Blocking (`async=false`) : it's easy to write the code but more compute-intensive when the parent process needs to hold many connections.
 
 Here is an example of asynchronous searches using Go 
-<%= snippet('golang', 'oobt/demo.go', true) %>
+<%= snippet('golang', 'demo/demo_async.go', true) %>
 
 This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). 
 Each search takes a few seconds before completion by SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might be already available in the archive. If not, the `search_archive` method blocks until the search results are available. 
 
 ## Supported Go version.
 Go versions validated by Github Actions:
- - 3.1
- - 2.6
-see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
+ - 2.4
+ * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
- * [2023-09-01] 1.0.0 Full API support
+ * [2024-10-01] 1.0.0 Full API support
 
 ## Developer Guide
 ### Key goals
