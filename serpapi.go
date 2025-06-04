@@ -5,39 +5,61 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
 )
 
 const (
-	VERSION       = "1.0.0"
-	BaseURL       = "https://serpapi.com"
+	VERSION        = "1.0.0"
+	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
 
-// SerpApiClient holds query parameters and HTTP client
+// SerpApiClient holds configuration settings and an HTTP client for making requests
 type SerpApiClient struct {
-	Parameter  map[string]string
-	HttpSearch *http.Client
+	Setting    SerpApiClientSetting // Configuration settings for the client
+	HttpSearch *http.Client         // HTTP client for making requests
+}
+
+// SerpApiClientSetting holds configuration settings for the SerpApiClient
+type SerpApiClientSetting struct {
+	Persistent          bool              // Enable persistent search (default: false)
+	Asynchronous        bool              // Enable asynchronous search (default: false)
+	Timeout             time.Duration     // Timeout for HTTP requests
+	SerpApiKey          string            // SerpAPI Key for authentication
+	Engine              string            // Search engine to use [default: "google"]
+	Parameter           map[string]string // Additional default parameters for the search
+	MaxIdleConnection   int               // Maximum number of idle connections to keep
+	KeepAlive           time.Duration     // Time between keep-alive probes (default: 60 seconds)
+	TLSHandshakeTimeout time.Duration     // Timeout for TLS handshake (default: 10 seconds)
+}
+
+// NewSerpApiClientSetting initializes a new SerpApiClientSetting with default values
+func NewSerpApiClientSetting(serpApiKey string) SerpApiClientSetting {
+	return SerpApiClientSetting{
+		Persistent:          false,
+		Asynchronous:        false,
+		Timeout:             DefaultTimeout, // Default timeout of 60 seconds
+		Parameter:           make(map[string]string),
+		SerpApiKey:          serpApiKey,
+		Engine:              "google",         // Default search engine
+		TLSHandshakeTimeout: 10 * time.Second, // Default TLS handshake timeout
+	}
 }
 
 // NewClient initializes a new SerpApiClient client
-func NewClient(parameter map[string]string) SerpApiClient {
-	timeout := DefaultTimeout
-	if v, ok := parameter["timeout"]; ok {
-		parsedTimeout, err := time.ParseDuration(v + "s")
-		if err != nil {
-			log.Fatalf("Invalid timeout value: %v", err)
-		}
-		timeout = parsedTimeout
-
-		delete(parameter, "timeout")
+func NewClient(setting SerpApiClientSetting) SerpApiClient {
+	transport := &http.Transport{
+		TLSHandshakeTimeout: setting.TLSHandshakeTimeout, // Adjust as needed for HTTPS
+		DisableKeepAlives:   !setting.Persistent,         // Keep-alives are enabled by default in Go >=1.5
+		MaxIdleConns:        setting.MaxIdleConnection,   // Set maximum idle connections
 	}
-
-	httpSearch := &http.Client{Timeout: timeout}
-	return SerpApiClient{Parameter: parameter, HttpSearch: httpSearch}
+	httpSearch := &http.Client{
+		Timeout:   setting.Timeout, // Use the timeout from the setting
+		Transport: transport,
+	}
+	return SerpApiClient{Setting: setting, HttpSearch: httpSearch}
 }
 
 // Search returns search result as a map
@@ -62,11 +84,11 @@ func (client *SerpApiClient) Html(parameter map[string]string) (*string, error) 
 
 // Location returns standardized location data
 func (client *SerpApiClient) Location(location string, limit int) ([]interface{}, error) {
-	client.Parameter = map[string]string{
+	parameter := map[string]string{
 		"q":     location,
 		"limit": fmt.Sprint(limit),
 	}
-	rsp, err := client.execute("/locations.json", "json", map[string]string{})
+	rsp, err := client.execute("/locations.json", "json", parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -136,13 +158,25 @@ func (client *SerpApiClient) execute(path string, output string, parameter map[s
 	for name, value := range parameter {
 		query.Add(name, value)
 	}
-	for name, value := range client.Parameter {
-		if _, exists := parameter[name]; !exists {
+	for name, value := range client.Setting.Parameter {
+		if _, ok := query[name]; !ok {
 			query.Add(name, value)
 		}
 	}
-
-	query.Add("source", "go")
+	if _, ok := query["api_key"]; !ok {
+		if client.Setting.SerpApiKey != "" {
+			query.Add("api_key", client.Setting.SerpApiKey)
+		}
+	}
+	if _, ok := query["engine"]; !ok {
+		if client.Setting.Engine != "" {
+			query.Add("engine", client.Setting.Engine)
+		}
+	}
+	if client.Setting.Asynchronous {
+		query.Add("async", "true")
+	}
+	query.Add("source", "go:"+VERSION)
 	query.Add("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()

@@ -16,10 +16,8 @@ func TestAccount(t *testing.T) {
 
 	var rsp map[string]interface{}
 	var err error
-	parameter := map[string]string{
-		"api_key": *getApiKey(),
-	}
-	client := serpapi.NewClient(parameter)
+	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	client := serpapi.NewClient(setting)
 	rsp, err = client.Account()
 
 	if err != nil {

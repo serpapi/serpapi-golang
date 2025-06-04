@@ -13,10 +13,8 @@ func TestHtml(t *testing.T) {
 		return
 	}
 
-	client_parameter := map[string]string{
-		"engine":  "google",
-		"api_key": *getApiKey(),
-	}
+	setting = serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting.Engine = "google" // Set the search engine to Google
 	client := serpapi.NewClient(client_parameter)
 
 	parameter := map[string]string{

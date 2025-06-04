@@ -11,13 +11,11 @@ func TestQuickStart(t *testing.T) {
 		t.Skip("API_KEY required")
 		return
 	}
+	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting.Timeout = 30 * time.Second
+	setting.Engine = "google" // Set the search engine to Google
 
-	client_parameter := map[string]string{
-		"timeout": "30",
-		"api_key": *getApiKey(),
-		"engine":  "google",
-	}
-	client := serpapi.NewClient(client_parameter)
+	client := serpapi.NewClient(setting)
 
 	parameter := map[string]string{
 		"q":             "Coffee",

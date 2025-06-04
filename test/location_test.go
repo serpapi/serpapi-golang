@@ -10,7 +10,8 @@ import (
 func TestLocation(t *testing.T) {
 	var locations []interface{}
 	var err error
-	client := serpapi.NewClient(map[string]string{})
+	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	client := serpapi.NewClient(setting)
 	locations, err = client.Location("Austin", 5)
 
 	if err != nil {

@@ -14,11 +14,9 @@ func TestSearchArchive(t *testing.T) {
 		return
 	}
 
-	client_parameter := map[string]string{
-		"engine":  "google",
-		"api_key": *getApiKey(),
-	}
-	client := serpapi.NewClient(client_parameter)
+	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting.Engine = "google" // Set the search engine to Google
+	client := serpapi.NewClient(setting)
 	parameter := map[string]string{
 		"q":        "Coffee",
 		"location": "Portland"}

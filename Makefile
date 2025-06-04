@@ -7,9 +7,18 @@ version=`grep VERSION serpapi.go | cut -d'"' -f2`
 all: version lint test doc ready
 
 # lint source code using go tools
-lint:
+lint: vet format
+
+vet: 
+	@echo "Run go vet"
 	go vet .
+	go vet ./demo
+	go vet ./test
+
+format: 
 	go fmt .
+	go fmt ./demo
+	go fmt ./test
 
 # run integration test suite
 test:
