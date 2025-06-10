@@ -10,7 +10,7 @@ import (
 //
 func TestGoogleProduct(t *testing.T) {
   if shoulSkip() {
-    t.Skip("SERPAPI_KEY required")
+    t.Skip("SERPSERPAPI_KEY required")
     return
   }
 

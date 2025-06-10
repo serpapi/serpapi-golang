@@ -10,7 +10,7 @@ import (
 //
 func TestGoogleVideos(t *testing.T) {
   if shoulSkip() {
-    t.Skip("SERPAPI_KEY required")
+    t.Skip("SERPSERPAPI_KEY required")
     return
   }
 

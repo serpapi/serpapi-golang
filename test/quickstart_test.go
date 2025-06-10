@@ -9,10 +9,10 @@ import (
 
 func TestQuickStart(t *testing.T) {
 	if shoulSkip() {
-		t.Skip("API_KEY required")
+		t.Skip("SERPAPI_KEY required")
 		return
 	}
-	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting := serpapi.NewSerpApiClientSetting(getApiKey())
 	setting.Timeout = 30 * time.Second
 	setting.Engine = "google" // Set the search engine to Google
 

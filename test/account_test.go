@@ -10,13 +10,13 @@ import (
 func TestAccount(t *testing.T) {
 	// Skip this test
 	if shoulSkip() {
-		t.Skip("API_KEY required")
+		t.Skip("SERPAPI_KEY required")
 		return
 	}
 
 	var rsp map[string]interface{}
 	var err error
-	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting := serpapi.NewSerpApiClientSetting(getApiKey())
 	client := serpapi.NewClient(setting)
 	rsp, err = client.Account()
 

@@ -8,7 +8,7 @@ import (
 // basic use case
 func TestBing(t *testing.T) {
   if shoulSkip() {
-    t.Skip("API_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 

@@ -9,13 +9,13 @@ import (
 
 func TestHtml(t *testing.T) {
 	if shoulSkip() {
-		t.Skip("API_KEY required")
+		t.Skip("SERPAPI_KEY required")
 		return
 	}
 
 	// Initialize the SerpApi client with the API key
 	// and set the search engine to Google
-	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting := serpapi.NewSerpApiClientSetting(getApiKey())
 	setting.Engine = "google" // Set the search engine to Google
 	client := serpapi.NewClient(setting)
 

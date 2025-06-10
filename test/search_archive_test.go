@@ -10,11 +10,11 @@ import (
 // doc: https://serpapi.com/search-archive-api
 func TestSearchArchive(t *testing.T) {
 	if shoulSkip() {
-		t.Skip("API_KEY required")
+		t.Skip("SERPAPI_KEY required")
 		return
 	}
 
-	setting := serpapi.NewSerpApiClientSetting(*getApiKey())
+	setting := serpapi.NewSerpApiClientSetting(getApiKey())
 	setting.Engine = "google" // Set the search engine to Google
 	client := serpapi.NewClient(setting)
 	parameter := map[string]string{
