@@ -22,7 +22,7 @@ format:
 
 # run integration test suite
 test:
-	go test -v ./*.go
+	go test -v ./test
 
 # run code coverage (not working)
 coverage:

@@ -2,6 +2,7 @@ package serpapi
 
 import (
 	"testing"
+	"time"
 
 	"github.com/serpapi/serpapi-golang"
 )
