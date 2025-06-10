@@ -26,6 +26,11 @@ func TestAccount(t *testing.T) {
 		return
 	}
 
+	if rsp == nil {
+		t.Error("response is nil")
+		return
+	}
+
 	if _, exists := rsp["account_id"]; !exists {
 		t.Error("key account_id does not exist in response")
 		return
