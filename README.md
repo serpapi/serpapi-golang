@@ -19,39 +19,35 @@ go get -u github.com/serpapi/serpapi-golang
 
 ```golang
 import "github.com/serpapi/serpapi-golang"
-
-auth := map[string]string{
-  "api_key": "secret_api_key"
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
+setting.Engine = "google" // Set the search engine to Google
+client := serpapi.NewClient(setting)
+parameter := map[string]string{
+  "q":             "Coffee",
+  "location":      "Austin, Texas, United States",
 }
-client := serpapi.NewClient(auth)
-
-parameter := map[string]string{ 
-  "engine": "google",
-  "q": "coffee"
-}
-data, err := client.Search(parameter)
-fmt.Println(data)
+results, err := client.Search(parameter)
+fmt.Println(results)
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go Hash. See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google. It then returns the results a Go Hash. 
+See the [playground](https://serpapi.com/playground) to generate your own code.
 
 ## Advanced Usage
 ### Search API
 ```golang
 
 func main() {
-  // serpapi client created with default parameters
-  auth := map[string]string{
-    "api_key": "secret_key",
-    "timeout": "30",
-    "engine":  "google",
-  }
-  client := serpapi.NewClient(auth)
+  // Initialize the client with custom setting
+	setting := serpapi.NewSerpApiClientSetting(os.Getenv("SERPAPI_KEY")) // Replace with your SerpApi key
+	setting.Persistent = false                     // Enable persistent search
+	setting.Asynchronous = true                    // Enable asynchronous search
+	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
+	setting.MaxIdleConnection = 10                 // Set maximum idle connections
+	setting.KeepAlive = 60 * time.Second           // Set keep-alive duration
+	setting.TLSHandshakeTimeout = 10 * time.Second // Set TLS handshake timeout
 
-  // We recommend that you keep your keys safe.
-  // At least, don't commit them in plain text.
-  // More about configuration via environment variables:
-  // https://hackernoon.com/all-the-secrets-of-encrypting-api-keys-in-golang-revealed-5qf3t5l
+	client := serpapi.NewClient(setting)
 
   // search query overview (more fields available depending on search engine)
   parameter := map[string]string{
@@ -1880,9 +1876,9 @@ Here is an example of asynchronous searches using Go
 
 import (
 	"fmt"
+	serpapi "github.com/serpapi/serpapi-golang"
 	"os"
 	"time"
-	serpapi "github.com/serpapi/serpapi-golang"
 )
 
 /***
@@ -1922,13 +1918,15 @@ func main() {
 	if len(api_key) == 0 {
 		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
 	}
-	auth := map[string]string{
-		"api_key": api_key,  // Pass API key for authentication
-		"engine":  "google", // Set google as the search engine
-		"timeout": "10",     // Set a timeout of 10 seconds for each search
-		"async":   "true",   // Enable asynchronous search
-	}
-	client := serpapi.NewClient(auth)
+	setting := serpapi.NewSerpApiClientSetting(api_key)
+	setting.Persistent = false                     // Enable persistent search
+	setting.Asynchronous = true                    // Enable asynchronous search
+	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
+	setting.MaxIdleConnection = 10                 // Set maximum idle connections
+	setting.KeepAlive = 60 * time.Second           // Set keep-alive duration
+	setting.TLSHandshakeTimeout = 10 * time.Second // Set TLS handshake timeout
+
+	client := serpapi.NewClient(setting)
 
 	// Target MAANG companies
 	companyList := []string{"meta", "amazon", "apple", "netflix", "google"}
@@ -1938,6 +1936,7 @@ func main() {
 
 	for _, company := range companyList {
 		// Store request into scheduleSearch - non-blocking
+		fmt.Printf("Schedule search for: %s\n", company)
 		result, err := client.Search(map[string]string{"q": company})
 		if err != nil {
 			panic(err)
@@ -1955,9 +1954,8 @@ func main() {
 
 	fmt.Printf("Last search submitted at: %s\n", lastSearchMetadata["created_at"].(string))
 
-	// Wait for 10 seconds to allow all requests to be processed
-	fmt.Println("Wait 10s for all requests to be completed")
-	time.Sleep(10 * time.Second)
+	fmt.Println("Wait 5s for all requests to be completed")
+	time.Sleep(5 * time.Second)
 
 	fmt.Println("Wait until all searches are cached or successful")
 	for len(scheduleSearch) > 0 {

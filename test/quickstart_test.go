@@ -29,13 +29,13 @@ func TestQuickStart(t *testing.T) {
 		"num":           "10",
 		"device":        "desktop",
 	}
-	rsp, err := client.Search(parameter)
+	results, err := client.Search(parameter)
 
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	result := rsp["organic_results"].([]interface{})[0].(map[string]interface{})
+	result := results["organic_results"].([]interface{})[0].(map[string]interface{})
 	if len(result["title"].(string)) == 0 {
 		t.Error("empty title in local results")
 		return

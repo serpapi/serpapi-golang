@@ -21,16 +21,21 @@ func TestSearchArchive(t *testing.T) {
 		"q":        "Coffee",
 		"location": "Portland"}
 
-	rsp, err := client.Search(parameter)
+	scheduleSearch, err := client.Search(parameter)
 
 	if err != nil {
 		t.Error("unexpected error", err)
 		return
 	}
+	searchMetadata, ok := scheduleSearch["search_metadata"].(map[string]interface{})
+	if !ok {
+		t.Error("search_metadata is missing or invalid")
+		return
+	}
 
-	searchID := rsp["search_metadata"].(map[string]interface{})["id"].(string)
-	if len(searchID) == 0 {
-		t.Error("search_metadata.id must be defined")
+	searchID, ok := searchMetadata["id"].(string)
+	if !ok || len(searchID) == 0 {
+		t.Error("search_metadata.id is missing or invalid")
 		return
 	}
 
@@ -40,8 +45,15 @@ func TestSearchArchive(t *testing.T) {
 		return
 	}
 
-	searchIDArchive := searchArchive["search_metadata"].(map[string]interface{})["id"].(string)
-	if searchIDArchive != searchID {
-		t.Error("search_metadata.id do not match", searchIDArchive, searchID)
+	searchMetadataArchive, ok := searchArchive["search_metadata"].(map[string]interface{})
+	if !ok {
+		t.Error("search_metadata in search archive is missing or invalid")
+		return
 	}
+
+	searchIDArchive, ok := searchMetadataArchive["id"].(string)
+	if !ok || searchIDArchive != searchID {
+		t.Errorf("search_metadata.id mismatch: got %v, expected %v", searchIDArchive, searchID)
+	}
+	// print search results from search archive
 }

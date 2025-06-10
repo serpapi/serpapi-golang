@@ -42,39 +42,35 @@ go get -u github.com/serpapi/serpapi-golang
 
 ```golang
 import "github.com/serpapi/serpapi-golang"
-
-auth := map[string]string{
-  "api_key": "secret_api_key"
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
+setting.Engine = "google" // Set the search engine to Google
+client := serpapi.NewClient(setting)
+parameter := map[string]string{
+  "q":             "Coffee",
+  "location":      "Austin, Texas, United States",
 }
-client := serpapi.NewClient(auth)
-
-parameter := map[string]string{ 
-  "engine": "google",
-  "q": "coffee"
-}
-data, err := client.Search(parameter)
-fmt.Println(data)
+results, err := client.Search(parameter)
+fmt.Println(results)
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go Hash. See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google. It then returns the results a Go Hash. 
+See the [playground](https://serpapi.com/playground) to generate your own code.
 
 ## Advanced Usage
 ### Search API
 ```golang
 
 func main() {
-  // serpapi client created with default parameters
-  auth := map[string]string{
-    "api_key": "secret_key",
-    "timeout": "30",
-    "engine":  "google",
-  }
-  client := serpapi.NewClient(auth)
+  // Initialize the client with custom setting
+	setting := serpapi.NewSerpApiClientSetting(os.Getenv("SERPAPI_KEY")) // Replace with your SerpApi key
+	setting.Persistent = false                     // Enable persistent search
+	setting.Asynchronous = true                    // Enable asynchronous search
+	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
+	setting.MaxIdleConnection = 10                 // Set maximum idle connections
+	setting.KeepAlive = 60 * time.Second           // Set keep-alive duration
+	setting.TLSHandshakeTimeout = 10 * time.Second // Set TLS handshake timeout
 
-  // We recommend that you keep your keys safe.
-  // At least, don't commit them in plain text.
-  // More about configuration via environment variables:
-  // https://hackernoon.com/all-the-secrets-of-encrypting-api-keys-in-golang-revealed-5qf3t5l
+	client := serpapi.NewClient(setting)
 
   // search query overview (more fields available depending on search engine)
   parameter := map[string]string{
