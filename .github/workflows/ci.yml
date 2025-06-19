@@ -31,7 +31,7 @@ jobs:
         fi
 
     - name: Test
-      run: go test -v ./test
+      run: make test
       env:
         API_KEY: ${{ secrets.API_KEY }}
 
