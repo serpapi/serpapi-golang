@@ -69,3 +69,8 @@ release: oobt version
 	git tag -a ${version}
 	git push origin ${version}
 	@echo "create release: ${version}"
+
+clean:
+	rm coverage.out
+	rm coverage.html
+	go clean
