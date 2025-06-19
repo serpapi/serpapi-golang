@@ -15,7 +15,10 @@ func TestSearchArchive(t *testing.T) {
 	}
 
 	setting := serpapi.NewSerpApiClientSetting(getApiKey())
-	setting.Engine = "google" // Set the search engine to Google
+	// run a non blocking search
+	setting.Asynchronous = true
+	// set default search engine
+	setting.Engine = "google"
 	client := serpapi.NewClient(setting)
 	parameter := map[string]string{
 		"q":        "Coffee",
@@ -27,31 +30,46 @@ func TestSearchArchive(t *testing.T) {
 		t.Error("unexpected error", err)
 		return
 	}
-	searchMetadata, ok := scheduleSearch["search_metadata"].(map[string]interface{})
+	metadata, ok := scheduleSearch["search_metadata"].(map[string]interface{})
 	if !ok {
 		t.Error("search_metadata is missing or invalid")
 		return
 	}
 
-	searchID, ok := searchMetadata["id"].(string)
+	searchID, ok := metadata["id"].(string)
 	if !ok || len(searchID) == 0 {
 		t.Error("search_metadata.id is missing or invalid")
 		return
 	}
 
-	searchArchive, err := client.SearchArchive(searchID)
-	if err != nil {
-		t.Error(err)
-		return
+	// wait for the search to complete
+	t.Logf("Waiting for search %s to complete...", searchID)
+	var archiveMetadata map[string]interface{}
+	for {
+		searchArchive, err := client.SearchArchive(searchID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		archiveMetadata, ok = searchArchive["search_metadata"].(map[string]interface{})
+		if !ok {
+			t.Error("search_metadata in search archive is missing or invalid")
+			return
+		}
+
+		status, ok := archiveMetadata["status"].(string)
+		if !ok {
+			t.Error("search_metadata.status is missing or invalid")
+			return
+		}
+
+		if status == "Cached" || status == "Success" {
+			break
+		}
 	}
 
-	searchMetadataArchive, ok := searchArchive["search_metadata"].(map[string]interface{})
-	if !ok {
-		t.Error("search_metadata in search archive is missing or invalid")
-		return
-	}
-
-	searchIDArchive, ok := searchMetadataArchive["id"].(string)
+	searchIDArchive, ok := archiveMetadata["id"].(string)
 	if !ok || searchIDArchive != searchID {
 		t.Errorf("search_metadata.id mismatch: got %v, expected %v", searchIDArchive, searchID)
 	}

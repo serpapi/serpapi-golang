@@ -39,7 +39,7 @@ See the [playground](https://serpapi.com/playground) to generate your own code.
 
 func main() {
   // Initialize the client with custom setting
-	setting := serpapi.NewSerpApiClientSetting(os.Getenv("SERPAPI_KEY")) // Replace with your SerpApi key
+	setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
 	setting.Persistent = false                     // Enable persistent search
 	setting.Asynchronous = true                    // Enable asynchronous search
 	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
@@ -52,7 +52,7 @@ func main() {
   // search query overview (more fields available depending on search engine)
   parameter := map[string]string{
     "q":             "Coffee",
-    "location":      "Portland, Oregon, United States",
+    "location":      "Austin, Texas, United States",
     "hl":            "en",
     "gl":            "us",
     "google_domain": "google.com",
@@ -93,21 +93,27 @@ More hands on examples are available below.
 ### Location API
 
 ```golang
-client := serpapi.NewClient(map[string]string{})
-rsp, err := client.Location("Austin", 3)
+import (
+	"fmt"
+	"github.com/serpapi/serpapi-golang"
+)
+
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi secret key
+client := serpapi.NewClient(setting)
+locationList, err := client.Location("Austin", 5)
 
 if err != nil {
   panic(err)
 }
-fmt.Println(rsp)
+fmt.Println(locationList)
 ```
 
-it prints the first 3 locations matching Austin (Texas, Texas, Rochester)
+It prints the first 5 locations matching Austin (Texas, Texas, Rochester)
 ```
 [map[canonical_name:Austin,TX,Texas,United States country_code:US google_id:200635 google_parent_id:21176 gps:[-97.7430608 30.267153]...
 ```
 
-NOTE: api_key is not required for this endpoint.
+ - see: (test/location_test.go)
 
 ### Search Archive API
 
@@ -1912,8 +1918,11 @@ import (
  * information using SerpApi.**
  *
  * go get -u github.com/serpapi/serpapi-golang
+ *
+ * The SERPAPI_KEY environment variable must be set to your secret SerpApi API key.
  */
 func main() {
+	// Read SERPAPI key from environment variable
 	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
 		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
@@ -2014,8 +2023,8 @@ Go versions validated by Github Actions:
  - KiSS principles
 
 ### Inspirations
-This project source code and coding style was inspired by Go itself.
-This programming language native provides all the recommendation to build awesome software.
+The source code and coding style of this project are inspired by Go.
+The Go programming language provides native recommendations for building excellent software.
 
 ### Code quality expectations
  - 0 lint offense: `make lint`

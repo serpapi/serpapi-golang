@@ -8,11 +8,9 @@ import (
 
 // doc: https://serpapi.com/locationList-api
 func TestLocation(t *testing.T) {
-	var locationList []interface{}
-	var err error
 	setting := serpapi.NewSerpApiClientSetting(getApiKey())
 	client := serpapi.NewClient(setting)
-	locationList, err = client.Location("Austin", 5)
+	locationList, err := client.Location("Austin", 5)
 
 	if err != nil {
 		t.Error(err)

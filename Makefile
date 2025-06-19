@@ -12,13 +12,13 @@ lint: vet format
 vet: 
 	@echo "Run go vet"
 	go vet .
-	go vet ./demo
+	$(foreach file, $(wildcard ./demo/*), go vet $(file);)
 	go vet ./test
 
 format: 
 	go fmt .
-	go fmt ./demo
 	go fmt ./test
+	$(foreach file, $(wildcard ./demo/*), go fmt $(file);)
 
 # run integration test suite
 test:
@@ -27,7 +27,7 @@ test:
 # run code coverage (not working)
 coverage:
 	@echo "Run code coverage"
-	go test -cover -covermode=count -coverprofile=coverage.out ./*.go
+	go test -cover -covermode=count -coverpkg=./... -coverprofile=coverage.out ./test
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 

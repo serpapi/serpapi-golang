@@ -10,10 +10,15 @@ import (
 )
 
 /***
- * Demonstrate how to run a search on Google using a thread pool
- * in order to distribute the workload across multiple threads.
+ * This  demonstrates the use of thread pools to execute multiple HTTP
+ * requests concurrently using persistent connections to SerpApi.
+ * It uses a worker pool pattern to manage multiple goroutines that
+ * perform searches in parallel, improving efficiency and reducing
+ * the time taken to process multiple search queries.
  *
  * go get -u github.com/serpapi/serpapi-golang
+ *
+ * The SERPAPI_KEY environment variable must be set to your secret SerpApi API key.
  */
 func main() {
 	api_key := os.Getenv("SERPAPI_KEY")
@@ -22,18 +27,23 @@ func main() {
 		return
 	}
 
+	// Number of workers in the thread pool
 	numWorkers := 4
 	queries := make(chan map[string]string, numWorkers)
 	results := make(chan map[string]interface{}, numWorkers)
 
+	// WaitGroup to track worker / goroutine life cycle
 	var wg sync.WaitGroup
 
 	// Worker function
 	worker := func(queries <-chan map[string]string, results chan<- map[string]interface{}) {
+		// close the worker when done
 		defer wg.Done()
 
+		// Initialize the SerpApi client
 		setting := serpapi.NewSerpApiClientSetting(api_key)
-		setting.Persistent = true // Enable persistent search
+		// Keep the HTTP connection open to reduce SSL handshake overhead
+		setting.Persistent = true
 		client := serpapi.NewClient(setting)
 		for query := range queries {
 			fmt.Printf("Search query: %s\n", query["q"])
@@ -51,9 +61,11 @@ func main() {
 		wg.Add(1)
 		go worker(queries, results)
 	}
+	fmt.Println("Workers started, waiting for queries...")
 
-	// Goroutine to process results
+	// Dispatch a goroutine to process results in the background
 	go func() {
+		// Process results as available on the channel
 		for result := range results {
 			fmt.Printf("Query Result: %v\n", result["search_metadata"].(map[string]interface{})["id"])
 			fmt.Println("Organic Results:")
@@ -82,7 +94,8 @@ func main() {
 		}
 	}()
 
-	// Schedule queries
+	// Schedule search queries sequentially for simplicity.
+	//  In real world usecase the search query producer may be an asynchronous service.
 	coffees := []string{"latte", "espresso", "cappuccino", "americano", "mocha", "macchiato", "frappuccino", "cold_brew"}
 	for _, query := range coffees {
 		queries <- map[string]string{
@@ -95,9 +108,12 @@ func main() {
 		}
 		fmt.Printf("Scheduled query for: %s\n", query)
 	}
-	close(queries) // Close queries channel to signal workers to stop
+	// Close queries channel to signal workers to stop
+	close(queries)
 
 	// Wait for all workers to finish
 	wg.Wait()
-	close(results) // Close results channel after all workers are done
+
+	// Close results channel after all workers are done
+	close(results)
 }
