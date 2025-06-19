@@ -13,9 +13,16 @@ func TestQuickStart(t *testing.T) {
 		return
 	}
 	setting := serpapi.NewSerpApiClientSetting(getApiKey())
+	setting.Persistent = false // Close the HTTP connection after the request to avoid keeping it open
+	setting.Asynchronous = false // Block search query until results are returned
 	setting.Timeout = 30 * time.Second
 	setting.Engine = "google" // Set the search engine to Google
-
+	// set default parameters
+	setting.Parameter = map[string]string{
+		"start": "0",
+		"hl":    "en",
+		"google_domain": "google.com",
+	}
 	client := serpapi.NewClient(setting)
 
 	parameter := map[string]string{
@@ -23,11 +30,11 @@ func TestQuickStart(t *testing.T) {
 		"location":      "Portland, Oregon, United States",
 		"hl":            "en",
 		"gl":            "us",
-		"google_domain": "google.com",
 		"safe":          "active",
 		"start":         "10",
 		"num":           "10",
 		"device":        "desktop",
+		"engine":        "google",  // override engine default
 	}
 	results, err := client.Search(parameter)
 
