@@ -24,7 +24,6 @@ end
 ## SerpApi Go Library
 
 [![serpapi-go](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
-</div>
 
 Integrate search data into your Go application. This library is the official wrapper for [SerpApi](https://serpapi.com).
 
@@ -32,7 +31,7 @@ Integrate search data into your Go application. This library is the official wra
 
 ## Installation
 
-Go 1.10 is required. 
+Go 1.10+ is required. 
 
 ```bash
 go get -u github.com/serpapi/serpapi-golang
@@ -53,7 +52,7 @@ results, err := client.Search(parameter)
 fmt.Println(results)
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go Hash. 
+This example runs a search for "coffee" on Google. It then returns the results a Go map. 
 See the [playground](https://serpapi.com/playground) to generate your own code.
 
 ## Advanced Usage
@@ -85,7 +84,7 @@ func main() {
     "device":        "desktop",
   }
 
-  // formated search results as a Hash
+  // formated search results as a map
   // serpapi.com converts HTML -> JSON
   rsp, err := client.Search(parameter)
 
@@ -350,7 +349,7 @@ It prints your account information.
 
 Search API features non-blocking search using the option: `async=true`.
  - Non-blocking - async=true - a single parent process can handle unlimited concurrent searches.
- - Blocking - async=false - many processes must be forked and synchronized to handle concurrent searches. This strategy is I/O usage because each client would hold a network connection.
+ - Blocking - async=false - many processes must be forked and synchronized to handle concurrent searches. This strategy is I/O intensive because each client would hold a network connection.
 
 Search API enables `async` search.
  - Non-blocking (`async=true`) : the development is more complex, but this allows handling many simultaneous connections.
@@ -364,7 +363,7 @@ Each search takes a few seconds before completion by SerpApi service and the sea
 
 ## Supported Go version.
 Go versions validated by Github Actions:
- - 2.4
+ - 1.17+
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
@@ -402,16 +401,16 @@ classDiagram
   class Client {
     engine String
     api_key String
-    params Hash
-    search() Hash
+    params Map
+    search() Map
     html() String
     location() String
-    search_archive() Hash
-    account() Hash
+    search_archive() Map
+    account() Map
   }
-  openuri <.. Client
+  net/http <.. Client
   json <.. Client
-  Go <.. openuri
+  Go <.. net/http
   Go <.. json
 ```
 ### search() : Sequence diagram
@@ -421,11 +420,11 @@ sequenceDiagram
     SerpApi.com-->>SerpApi.com: query search engine
     SerpApi.com-->>SerpApi.com: parse HTML into JSON
     SerpApi.com-->>Client: JSON string payload
-    Client-->>Client: decode JSON into Hash
+    Client-->>Client: decode JSON into map
 ```
 where:
   - The end user implements the application.
-  - Client refers to SerpApi:Client.
+  - Client refers to serpapi.Client.
   - SerpApi.com is the backend HTTP / REST service.
   - Engine refers to Google, Baidu, Bing, and more.
 
@@ -433,17 +432,17 @@ The SerpApi.com service (backend)
  - executes a scalable search on `engine: "google"` using the search query: `q: "coffee"`.
  - parses the messy HTML responses from Google on the backend.
  - returns a standardized JSON response.
-The class SerpApi::Client (client side / golang):
+The class serpapi.Client (client side / golang):
  - Format the request to SerpApi.com server.
  - Execute HTTP Get request.
- - Parse JSON into Go Hash using a standard JSON library.
+ - Parse JSON into Go map using a standard JSON library.
 Et voila!
 
 ## Continuous integration
 We love "true open source" and "continuous integration", and Test Drive Development (TDD).
- We are using RSpec to test [our infrastructure around the clock]) using Github Action to achieve the best QoS (Quality Of Service).
+ We are using Go test to test [our infrastructure around the clock]) using Github Action to achieve the best QoS (Quality Of Service).
 
-The directory spec/ includes specification which serves the dual purposes of examples and functional tests.
+The directory test/ includes specification which serves the dual purposes of examples and functional tests.
 
 Set your secret API key in your shell before running a test.
 ```bash
@@ -451,7 +450,7 @@ export API_KEY="your_secret_key"
 ```
 Install testing dependency
 ```bash
-$ make
+$ make test
 ```
 Contributions are welcome. Feel to submit a pull request!
 
