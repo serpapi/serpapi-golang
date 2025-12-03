@@ -32,7 +32,6 @@ func TestQuickStart(t *testing.T) {
 		"gl":            "us",
 		"safe":          "active",
 		"start":         "10",
-		"num":           "10",
 		"device":        "desktop",
 		"engine":        "google",  // override engine default
 	}

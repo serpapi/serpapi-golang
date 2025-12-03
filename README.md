@@ -57,7 +57,6 @@ func main() {
     "google_domain": "google.com",
     "safe":          "active",
     "start":         "10",
-    "num":           "10",
     "device":        "desktop",
   }
 
