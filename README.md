@@ -2005,6 +2005,11 @@ Go versions validated by Github Actions:
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
+ * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
+  - Major features (async/persistent mode, API key handling, client configuration)
+  - New test examples
+  - Documentation and code quality improvements
+  - Build system and CI/CD enhancements
  * [2024-10-01] 1.0.0 Full API support
 
 ## Developer Guide
