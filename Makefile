@@ -65,10 +65,11 @@ version:
 	@echo "current version: ${version}"
 
 # display the current release information
+# tags are prefixed with v (vX.Y.Z) as required by the go module resolver
 release: oobt version
-	git tag -a ${version}
-	git push origin ${version}
-	@echo "create release: ${version}"
+	git tag -a v${version}
+	git push origin v${version}
+	@echo "create release: v${version}"
 
 clean:
 	rm coverage.out
