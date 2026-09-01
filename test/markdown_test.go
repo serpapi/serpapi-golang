@@ -17,7 +17,7 @@ func TestMarkdown(t *testing.T) {
 	setting.Engine = "google"
 	client := serpapi.NewClient(setting)
 
-	markdown, err := client.Markdown(map[string]string{
+	markdown, err := client.Md(map[string]string{
 		"q":        "Coffee",
 		"location": "Austin, Texas, United States",
 	})

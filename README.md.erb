@@ -62,10 +62,10 @@ Use `Search` for structured JSON results decoded into a Go map:
 results, err := client.Search(parameter)
 ```
 
-Use `Markdown` for a token-efficient Markdown string optimized for LLMs and AI agents:
+Use `Md` for a token-efficient Markdown string optimized for LLMs and AI agents:
 
 ```golang
-markdown, err := client.Markdown(parameter)
+markdown, err := client.Md(parameter)
 ```
 
 Use `Html` when you need the raw search-engine response:
@@ -114,7 +114,7 @@ func main() {
   fmt.Println(rsp)
 
   // token-efficient Markdown as a string
-  markdown, err := client.Markdown(parameter)
+  markdown, err := client.Md(parameter)
   if err != nil {
     panic(err)
   }
@@ -205,7 +205,7 @@ if searchIDArchive != searchID {
 This code prints the JSON search results from the archive. Archived results are also available as Markdown:
 
 ```golang
-markdown, err := client.SearchArchiveMarkdown(searchID)
+markdown, err := client.SearchArchiveMd(searchID)
 if err != nil {
   panic(err)
 }
@@ -441,11 +441,11 @@ classDiagram
     api_key String
     params Map
     search() Map
-    markdown() String
+    md() String
     html() String
     location() String
     search_archive() Map
-    search_archive_markdown() String
+    search_archive_md() String
     account() Map
   }
   net/http <.. Client

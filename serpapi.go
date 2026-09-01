@@ -84,8 +84,8 @@ func (client *SerpApiClient) Html(parameter map[string]string) (*string, error) 
 	return client.decodeText(rsp.Body)
 }
 
-// Markdown returns search results formatted as Markdown
-func (client *SerpApiClient) Markdown(parameter map[string]string) (*string, error) {
+// Md returns search results formatted as Markdown
+func (client *SerpApiClient) Md(parameter map[string]string) (*string, error) {
 	rsp, err := client.execute("/search", "md", parameter)
 	if err != nil {
 		return nil, err
@@ -128,8 +128,8 @@ func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, e
 	return client.decodeJSON(rsp.Body)
 }
 
-// SearchArchiveMarkdown retrieves previous search results formatted as Markdown
-func (client *SerpApiClient) SearchArchiveMarkdown(id string) (*string, error) {
+// SearchArchiveMd retrieves previous search results formatted as Markdown
+func (client *SerpApiClient) SearchArchiveMd(id string) (*string, error) {
 	rsp, err := client.execute("/searches/"+id+".md", "md", map[string]string{})
 	if err != nil {
 		return nil, err

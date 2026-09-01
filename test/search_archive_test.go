@@ -75,7 +75,7 @@ func TestSearchArchive(t *testing.T) {
 		t.Errorf("search_metadata.id mismatch: got %v, expected %v", searchIDArchive, searchID)
 	}
 
-	markdown, err := client.SearchArchiveMarkdown(searchID)
+	markdown, err := client.SearchArchiveMd(searchID)
 	if err != nil {
 		t.Error(err)
 		return
