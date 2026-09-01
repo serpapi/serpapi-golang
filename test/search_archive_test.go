@@ -1,6 +1,7 @@
 package serpapi
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/serpapi/serpapi-golang"
@@ -72,6 +73,15 @@ func TestSearchArchive(t *testing.T) {
 	searchIDArchive, ok := archiveMetadata["id"].(string)
 	if !ok || searchIDArchive != searchID {
 		t.Errorf("search_metadata.id mismatch: got %v, expected %v", searchIDArchive, searchID)
+	}
+
+	markdown, err := client.SearchArchiveMarkdown(searchID)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !strings.Contains(*markdown, "## Organic Results") {
+		t.Error("Markdown search archive does not contain organic results")
 	}
 	// print search results from search archive
 }

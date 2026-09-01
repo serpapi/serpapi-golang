@@ -5,13 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
 const (
-	VERSION        = "1.1.0"
+	VERSION        = "1.2.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
@@ -79,7 +81,17 @@ func (client *SerpApiClient) Html(parameter map[string]string) (*string, error) 
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	return client.decodeHTML(rsp.Body)
+	return client.decodeText(rsp.Body)
+}
+
+// Markdown returns search results formatted as Markdown
+func (client *SerpApiClient) Markdown(parameter map[string]string) (*string, error) {
+	rsp, err := client.execute("/search", "md", parameter)
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeTextResponse(rsp)
 }
 
 // Location returns standardized location data
@@ -116,6 +128,16 @@ func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, e
 	return client.decodeJSON(rsp.Body)
 }
 
+// SearchArchiveMarkdown retrieves previous search results formatted as Markdown
+func (client *SerpApiClient) SearchArchiveMarkdown(id string) (*string, error) {
+	rsp, err := client.execute("/searches/"+id+".md", "md", map[string]string{})
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeTextResponse(rsp)
+}
+
 // decodeJSON decodes response body to a map
 func (client *SerpApiClient) decodeJSON(body io.ReadCloser) (map[string]interface{}, error) {
 	defer body.Close()
@@ -141,13 +163,43 @@ func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{},
 	return rsp, nil
 }
 
-// decodeHTML decodes response body to an HTML string
-func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
-	defer body.Close()
+// decodeText decodes a response body to a string.
+func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	buffer, err := io.ReadAll(body)
 	if err != nil {
 		return nil, err
 	}
+	text := string(buffer)
+	return &text, nil
+}
+
+// decodeTextResponse decodes Markdown responses to a string. SerpApi returns
+// API errors as JSON even when Markdown output was requested.
+func (client *SerpApiClient) decodeTextResponse(rsp *http.Response) (*string, error) {
+	buffer, err := io.ReadAll(rsp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	mediaType, _, _ := mime.ParseMediaType(rsp.Header.Get("Content-Type"))
+	mediaType = strings.ToLower(mediaType)
+	isJSON := mediaType == "application/json" || strings.HasSuffix(mediaType, "+json")
+	if isJSON {
+		var data map[string]interface{}
+		if err := json.Unmarshal(buffer, &data); err == nil {
+			if errorMessage, exists := data["error"].(string); exists {
+				return nil, errors.New(errorMessage)
+			}
+		}
+	}
+
+	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("HTTP request failed with status: %d", rsp.StatusCode)
+	}
+	if isJSON {
+		return nil, errors.New("expected a Markdown response, received JSON")
+	}
+
 	text := string(buffer)
 	return &text, nil
 }
@@ -177,7 +229,7 @@ func (client *SerpApiClient) execute(path string, output string, parameter map[s
 		query.Add("async", "true")
 	}
 	query.Add("source", "go:"+VERSION)
-	query.Add("output", output)
+	query.Set("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()
 	rsp, err := client.HttpSearch.Get(endpoint)

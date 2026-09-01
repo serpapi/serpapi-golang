@@ -29,8 +29,29 @@ results, err := client.Search(parameter)
 fmt.Println(results)
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go map. 
-See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google and returns the results as a Go map.
+
+### Response formats
+
+Use `Search` for structured JSON results decoded into a Go map:
+
+```golang
+results, err := client.Search(parameter)
+```
+
+Use `Markdown` for a token-efficient Markdown string optimized for LLMs and AI agents:
+
+```golang
+markdown, err := client.Markdown(parameter)
+```
+
+Use `Html` when you need the raw search-engine response:
+
+```golang
+rawHTML, err := client.Html(parameter)
+```
+
+Learn more about [SerpApi Markdown output](https://serpapi.com/markdown-output). See the [playground](https://serpapi.com/playground) to generate your own code.
 
 ## Advanced Usage
 ### Search API
@@ -68,6 +89,13 @@ func main() {
     panic(err)
   }
   fmt.Println(rsp)
+
+  // token-efficient Markdown as a string
+  markdown, err := client.Markdown(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(*markdown)
 
   // raw search engine html as a String
   // serpapi.com acts a proxy to provive high throughputs, no search limit and more.
@@ -121,11 +149,9 @@ To fetch earlier results from the search_id.
 First, you need to run a search and save the search id.
 ```golang
 // First, you need to run a search and save the search id.
-auth := map[string]string{
-  "engine":  "google",
-  "api_key": "secret_api_key",
-}
-client := serpapi.NewClient(auth)
+setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+setting.Engine = "google"
+client := serpapi.NewClient(setting)
 parameter := map[string]string{
   "q":        "Coffee",
   "location": "Portland"}
@@ -133,30 +159,35 @@ parameter := map[string]string{
 rsp, err := client.Search(parameter)
 
 if err != nil {
-  t.Error("unexpected error", err)
-  return
+  panic(err)
 }
 
 // Now let's retrieve the previous search results from the archive.
 searchID := rsp["search_metadata"].(map[string]interface{})["id"].(string)
 if len(searchID) == 0 {
-  t.Error("search_metadata.id must be defined")
-  return
+  panic("search_metadata.id must be defined")
 }
 
 searchArchive, err := client.SearchArchive(searchID)
 if err != nil {
-  t.Error(err)
-  return
+  panic(err)
 }
 
 searchIDArchive := searchArchive["search_metadata"].(map[string]interface{})["id"].(string)
 if searchIDArchive != searchID {
-  t.Error("search_metadata.id do not match", searchIDArchive, searchID)
+  panic("search_metadata.id does not match")
 }
 ```
 
-This code prints the search results from the archive. :)
+This code prints the JSON search results from the archive. Archived results are also available as Markdown:
+
+```golang
+markdown, err := client.SearchArchiveMarkdown(searchID)
+if err != nil {
+  panic(err)
+}
+fmt.Println(*markdown)
+```
 
 ### Account API
 ```golang
@@ -2005,6 +2036,9 @@ Go versions validated by Github Actions:
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
+ * [2026-09-01] 1.2.0 Markdown Output Support
+  - Add Markdown search and archive responses
+  - Decode JSON API errors returned for Markdown requests
  * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
   - Major features (async/persistent mode, API key handling, client configuration)
   - New test examples
@@ -2046,9 +2080,11 @@ classDiagram
     api_key String
     params Map
     search() Map
+    markdown() String
     html() String
     location() String
     search_archive() Map
+    search_archive_markdown() String
     account() Map
   }
   net/http <.. Client
