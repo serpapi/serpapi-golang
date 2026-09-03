@@ -412,9 +412,10 @@ classDiagram
     search_archive() Map
     account() Map
   }
-  net/http <.. Client
+  class nethttp["net/http"]
+  nethttp <.. Client
   json <.. Client
-  Go <.. net/http
+  Go <.. nethttp
   Go <.. json
 ```
 ### search() : Sequence diagram
