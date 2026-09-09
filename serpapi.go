@@ -1,12 +1,15 @@
 package serpapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -70,6 +73,62 @@ func (client *SerpApiClient) Search(parameter map[string]string) (map[string]int
 	}
 	defer rsp.Body.Close()
 	return client.decodeJSON(rsp.Body)
+}
+
+// UploadImage uploads an image to SerpApi's Image API and returns an image_id
+// that can be used by search engines such as Google Lens. image may be a file
+// path or an io.Reader.
+func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interface{}, error) {
+	rsp, err := client.executeImageUpload(image)
+	if err != nil {
+		return nil, err
+	}
+	return client.decodeJSON(rsp.Body)
+}
+
+// executeImageUpload sends a multipart POST request to the Image API.
+func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Response, error) {
+	var reader io.Reader
+	switch value := image.(type) {
+	case string:
+		file, err := os.Open(value)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		reader = file
+	case io.Reader:
+		reader = value
+	default:
+		return nil, errors.New("image must be a file path or io.Reader")
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreateFormFile("image", "image")
+	if err != nil {
+		return nil, err
+	}
+	if _, err = io.Copy(part, reader); err != nil {
+		return nil, err
+	}
+
+	if client.Setting.SerpApiKey != "" {
+		if err = writer.WriteField("api_key", client.Setting.SerpApiKey); err != nil {
+			return nil, err
+		}
+	}
+	if err = writer.Close(); err != nil {
+		return nil, err
+	}
+
+	request, err := http.NewRequest(http.MethodPost, BaseURL+"/image", &body)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	return client.HttpSearch.Do(request)
 }
 
 // Html returns raw HTML search result
