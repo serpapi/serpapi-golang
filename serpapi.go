@@ -83,7 +83,6 @@ func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interfac
 	if err != nil {
 		return nil, err
 	}
-	defer rsp.Body.Close()
 	return client.decodeJSON(rsp.Body)
 }
 
