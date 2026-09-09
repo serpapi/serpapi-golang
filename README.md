@@ -88,6 +88,29 @@ More hands on examples are available below.
  * [Library Github page](https://github.com/serpapi/serpapi-golang)
  * [API health status](https://serpapi.com/status)
 
+### Image API
+
+Upload JPG/JPEG, PNG, or WebP image (up to 500 KB) to use with supported search engines.
+
+```golang
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>")
+client := serpapi.NewClient(setting)
+
+upload, err := client.UploadImage("/path/to/image.png")
+if err != nil {
+  panic(err)
+}
+
+results, err := client.Search(map[string]string{
+  "engine":   "google_lens",
+  "image_id": upload["image_id"].(string),
+})
+```
+
+`UploadImage` also accepts an `io.Reader`. Reader ownership remains with the caller.
+
+Uploaded image IDs expire after 10 minutes. See the [Image API documentation](https://serpapi.com/image-api).
+
 ### Location API
 
 ```golang
