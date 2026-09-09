@@ -24,7 +24,7 @@ func imageClient(handler roundTripFunc) serpapi.SerpApiClient {
 }
 
 func TestUploadImage(t *testing.T) {
-	imagePath := t.TempDir() + "/image.png"
+	imagePath := t.TempDir() + string(os.PathSeparator) + "image.png"
 	if err := os.WriteFile(imagePath, []byte("fake-image-data"), 0600); err != nil {
 		t.Fatal(err)
 	}
