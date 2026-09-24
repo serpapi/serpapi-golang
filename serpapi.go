@@ -182,8 +182,7 @@ func (client *SerpApiClient) SearchArchiveContext(ctx context.Context, id string
 }
 
 // decodeJSON decodes response body to a map
-func (client *SerpApiClient) decodeJSON(body io.ReadCloser) (map[string]interface{}, error) {
-	defer body.Close()
+func (client *SerpApiClient) decodeJSON(body io.Reader) (map[string]interface{}, error) {
 	decoder := json.NewDecoder(body)
 	var rsp map[string]interface{}
 	if err := decoder.Decode(&rsp); err != nil {
@@ -196,8 +195,7 @@ func (client *SerpApiClient) decodeJSON(body io.ReadCloser) (map[string]interfac
 }
 
 // decodeJSONArray decodes response body to a slice
-func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{}, error) {
-	defer body.Close()
+func (client *SerpApiClient) decodeJSONArray(body io.Reader) ([]interface{}, error) {
 	decoder := json.NewDecoder(body)
 	var rsp []interface{}
 	if err := decoder.Decode(&rsp); err != nil {
@@ -207,8 +205,7 @@ func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{},
 }
 
 // decodeText decodes response body to a raw string (HTML or markdown)
-func (client *SerpApiClient) decodeText(body io.ReadCloser) (*string, error) {
-	defer body.Close()
+func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	buffer, err := io.ReadAll(body)
 	if err != nil {
 		return nil, err
