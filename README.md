@@ -8,7 +8,7 @@ Integrate search data into your Go application. This library is the official wra
 
 ## Installation
 
-Go 1.10+ is required. 
+Go 1.17+ is required.
 
 ```bash
 go get -u github.com/serpapi/serpapi-golang
@@ -31,6 +31,30 @@ fmt.Println(results)
 
 This example runs a search for "coffee" on Google. It then returns the results a Go map. 
 See the [playground](https://serpapi.com/playground) to generate your own code.
+
+### Context-aware requests
+
+The existing methods remain available and continue to use the client's configured
+timeout. For request-scoped cancellation or deadlines, use the corresponding
+`Context` method:
+
+```golang
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+results, err := client.SearchContext(ctx, map[string]string{
+  "q": "Coffee",
+})
+if err != nil {
+  // err may be context.Canceled or context.DeadlineExceeded.
+  panic(err)
+}
+fmt.Println(results)
+```
+
+Context-aware variants are available for `Search`, `Html`, `Markdown`, `Location`,
+`Account`, and `SearchArchive`. The original methods are backward-compatible
+convenience wrappers.
 
 ## Advanced Usage
 ### Search API
@@ -72,10 +96,18 @@ func main() {
   // raw search engine html as a String
   // serpapi.com acts a proxy to provive high throughputs, no search limit and more.
   raw_html, err := client.Html(parameter)
-  if err != nil { 
+  if err != nil {
     panic(err)
   }
   fmt.Println(raw_html)
+
+  // search results as markdown optimized for LLMs and AI agents
+  // serpapi.com converts HTML -> Markdown
+  markdown, err := client.Markdown(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(markdown)
 }
 ```
 
@@ -87,6 +119,53 @@ More hands on examples are available below.
  * [Full documentation on SerpApi.com](https://serpapi.com)
  * [Library Github page](https://github.com/serpapi/serpapi-golang)
  * [API health status](https://serpapi.com/status)
+
+### Markdown API
+
+`Markdown` returns the search results as markdown instead of JSON. The format is
+optimized for LLMs and AI agents: it carries most of the information found in the
+JSON response, but is far more token efficient thanks to tables, markdown links
+and YAML frontmatter.
+
+It is the `output=md` variant of the Search API, so it accepts exactly the same
+parameters as `Search` and `Html`.
+
+```golang
+ import (	
+  "github.com/serpapi/serpapi-golang" 
+  "fmt"
+  "strings"
+)
+
+ func main() {
+
+	// Initialize the SerpApi client with the API key
+	// and set the search engine to Google
+	setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+	setting.Engine = "google" // Set the search engine to Google
+	client := serpapi.NewClient(setting)
+
+	// Define the search parameters
+	parameter := map[string]string{
+		"q":        "Coffee",
+		"location": "Portland"}
+
+	// Perform the search and get the markdown response
+	data, err := client.Markdown(parameter)
+	if err != nil {
+		fmt.Println("err must be nil")
+		return
+	}
+	if !strings.Contains(*data, "#") {
+		fmt.Println("data does not contain any markdown heading")
+	}
+}
+
+```
+
+ * source code: [test/markdown_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/markdown_test.go)
+
+ * [Markdown output documentation](https://serpapi.com/blog/turning-search-results-into-markdown-for-llms/)
 
 ### Location API
 
@@ -2005,6 +2084,11 @@ Go versions validated by Github Actions:
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Change logs
+ * [2026-09-24] 1.3.0 Context-aware requests
+  - Added backward-compatible `Context` variants for all API methods
+  - Added request cancellation and deadline support
+ * [2026-08-16] 1.2.0 Markdown output support
+  - New `Markdown()` method returning `output=md` results optimized for LLMs and AI agents
  * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
   - Major features (async/persistent mode, API key handling, client configuration)
   - New test examples
@@ -2047,6 +2131,7 @@ classDiagram
     params Map
     search() Map
     html() String
+    markdown() String
     location() String
     search_archive() Map
     account() Map

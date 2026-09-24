@@ -1,6 +1,7 @@
 package serpapi
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 )
 
 const (
-	VERSION        = "1.1.0"
+	VERSION        = "1.3.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
@@ -64,7 +65,12 @@ func NewClient(setting SerpApiClientSetting) SerpApiClient {
 
 // Search returns search result as a map
 func (client *SerpApiClient) Search(parameter map[string]string) (map[string]interface{}, error) {
-	rsp, err := client.execute("/search", "json", parameter)
+	return client.SearchContext(context.Background(), parameter)
+}
+
+// SearchContext returns search results as a map and supports cancellation.
+func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[string]string) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/search", "json", parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -74,21 +80,46 @@ func (client *SerpApiClient) Search(parameter map[string]string) (map[string]int
 
 // Html returns raw HTML search result
 func (client *SerpApiClient) Html(parameter map[string]string) (*string, error) {
-	rsp, err := client.execute("/search", "html", parameter)
+	return client.HtmlContext(context.Background(), parameter)
+}
+
+// HtmlContext returns raw HTML search results and supports cancellation.
+func (client *SerpApiClient) HtmlContext(ctx context.Context, parameter map[string]string) (*string, error) {
+	rsp, err := client.execute(ctx, "/search", "html", parameter)
 	if err != nil {
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	return client.decodeHTML(rsp.Body)
+	return client.decodeText(rsp.Body)
+}
+
+// Markdown returns the search result as markdown optimized for LLMs and AI agents
+func (client *SerpApiClient) Markdown(parameter map[string]string) (*string, error) {
+	return client.MarkdownContext(context.Background(), parameter)
+}
+
+// MarkdownContext returns markdown search results and supports cancellation.
+func (client *SerpApiClient) MarkdownContext(ctx context.Context, parameter map[string]string) (*string, error) {
+	rsp, err := client.execute(ctx, "/search", "md", parameter)
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeText(rsp.Body)
 }
 
 // Location returns standardized location data
 func (client *SerpApiClient) Location(location string, limit int) ([]interface{}, error) {
+	return client.LocationContext(context.Background(), location, limit)
+}
+
+// LocationContext returns standardized location data and supports cancellation.
+func (client *SerpApiClient) LocationContext(ctx context.Context, location string, limit int) ([]interface{}, error) {
 	parameter := map[string]string{
 		"q":     location,
 		"limit": fmt.Sprint(limit),
 	}
-	rsp, err := client.execute("/locations.json", "json", parameter)
+	rsp, err := client.execute(ctx, "/locations.json", "json", parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +129,12 @@ func (client *SerpApiClient) Location(location string, limit int) ([]interface{}
 
 // Account returns account information
 func (client *SerpApiClient) Account() (map[string]interface{}, error) {
-	rsp, err := client.execute("/account", "json", map[string]string{})
+	return client.AccountContext(context.Background())
+}
+
+// AccountContext returns account information and supports cancellation.
+func (client *SerpApiClient) AccountContext(ctx context.Context) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/account", "json", map[string]string{})
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +144,12 @@ func (client *SerpApiClient) Account() (map[string]interface{}, error) {
 
 // SearchArchive retrieves previous search results from the archive
 func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, error) {
-	rsp, err := client.execute("/searches/"+id+".json", "json", map[string]string{})
+	return client.SearchArchiveContext(context.Background(), id)
+}
+
+// SearchArchiveContext retrieves a previous search result and supports cancellation.
+func (client *SerpApiClient) SearchArchiveContext(ctx context.Context, id string) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/searches/"+id+".json", "json", map[string]string{})
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +182,8 @@ func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{},
 	return rsp, nil
 }
 
-// decodeHTML decodes response body to an HTML string
-func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
+// decodeText decodes response body to a raw string (HTML or markdown)
+func (client *SerpApiClient) decodeText(body io.ReadCloser) (*string, error) {
 	defer body.Close()
 	buffer, err := io.ReadAll(body)
 	if err != nil {
@@ -153,7 +194,7 @@ func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
 }
 
 // execute sends an HTTP GET request and returns the response
-func (client *SerpApiClient) execute(path string, output string, parameter map[string]string) (*http.Response, error) {
+func (client *SerpApiClient) execute(ctx context.Context, path string, output string, parameter map[string]string) (*http.Response, error) {
 	query := url.Values{}
 	for name, value := range parameter {
 		query.Add(name, value)
@@ -180,7 +221,11 @@ func (client *SerpApiClient) execute(path string, output string, parameter map[s
 	query.Add("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()
-	rsp, err := client.HttpSearch.Get(endpoint)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	rsp, err := client.HttpSearch.Do(request)
 	if err != nil {
 		return nil, err
 	}
