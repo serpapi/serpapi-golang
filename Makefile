@@ -36,12 +36,8 @@ regression:
 	@echo "run regression tests"
 	go test -v ./examples/*.go
 
-# Ruby must be installed (ERB is located under $GEM_HOME/bin or under Ruby installation)
-readme:
-	erb -T '-' README.md.erb > README.md
-
 # create documentation
-doc: readme
+doc:
 	go doc
 
 # check that everything is pushed
