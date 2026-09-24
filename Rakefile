@@ -39,7 +39,7 @@ end
 
 desc "Run integration test suite"
 task :test do
-  sh "go test -v ./test"
+  sh "go test -v . ./test"
 end
 
 desc "Run code coverage"
