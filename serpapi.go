@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
@@ -32,7 +33,7 @@ type SerpApiClientSetting struct {
 	Engine              string            // Search engine to use [default: "google"]
 	Parameter           map[string]string // Additional default parameters for the search
 	MaxIdleConnection   int               // Maximum number of idle connections to keep
-	KeepAlive           time.Duration     // Time between keep-alive probes (default: 60 seconds)
+	KeepAlive           time.Duration     // Time between keep-alive probes
 	TLSHandshakeTimeout time.Duration     // Timeout for TLS handshake (default: 10 seconds)
 }
 
@@ -61,16 +62,23 @@ func NewSerpApiClientSetting(serpApiKey string) SerpApiClientSetting {
 		Parameter:           make(map[string]string),
 		SerpApiKey:          serpApiKey,
 		Engine:              "google",         // Default search engine
+		KeepAlive:           60 * time.Second, // Default TCP keep-alive interval
 		TLSHandshakeTimeout: 10 * time.Second, // Default TLS handshake timeout
 	}
 }
 
 // NewClient initializes a new SerpApiClient client
 func NewClient(setting SerpApiClientSetting) SerpApiClient {
-	transport := &http.Transport{
-		TLSHandshakeTimeout: setting.TLSHandshakeTimeout, // Adjust as needed for HTTPS
-		DisableKeepAlives:   !setting.Persistent,         // Keep-alives are enabled by default in Go >=1.5
-		MaxIdleConns:        setting.MaxIdleConnection,   // Set maximum idle connections
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSHandshakeTimeout = setting.TLSHandshakeTimeout
+	transport.DisableKeepAlives = !setting.Persistent
+	transport.MaxIdleConns = setting.MaxIdleConnection
+	transport.MaxIdleConnsPerHost = setting.MaxIdleConnection
+	if setting.KeepAlive > 0 {
+		transport.DialContext = (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: setting.KeepAlive,
+		}).DialContext
 	}
 	httpSearch := &http.Client{
 		Timeout:   setting.Timeout, // Use the timeout from the setting

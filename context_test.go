@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 )
 
 type contextTransport struct{}
@@ -144,5 +145,30 @@ func TestSearchContextBuildsExpectedQuery(t *testing.T) {
 	}
 	if query.Encode() != expected.Encode() {
 		t.Fatalf("unexpected query: got %s, want %s", query.Encode(), expected.Encode())
+	}
+}
+
+func TestNewClientConfiguresTransport(t *testing.T) {
+	setting := NewSerpApiClientSetting("")
+	setting.Persistent = true
+	setting.MaxIdleConnection = 12
+	setting.KeepAlive = 45 * time.Second
+	client := NewClient(setting)
+
+	transport, ok := client.HttpSearch.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("expected *http.Transport, got %T", client.HttpSearch.Transport)
+	}
+	if transport.DisableKeepAlives {
+		t.Fatal("expected persistent client to keep connections alive")
+	}
+	if transport.MaxIdleConns != setting.MaxIdleConnection {
+		t.Fatalf("expected MaxIdleConns %d, got %d", setting.MaxIdleConnection, transport.MaxIdleConns)
+	}
+	if transport.MaxIdleConnsPerHost != setting.MaxIdleConnection {
+		t.Fatalf("expected MaxIdleConnsPerHost %d, got %d", setting.MaxIdleConnection, transport.MaxIdleConnsPerHost)
+	}
+	if transport.Proxy == nil {
+		t.Fatal("expected default proxy support to be preserved")
 	}
 }
