@@ -148,6 +148,20 @@ func TestSearchContextBuildsExpectedQuery(t *testing.T) {
 	}
 }
 
+func TestSearchArchiveContextEscapesID(t *testing.T) {
+	client := NewClient(NewSerpApiClientSetting(""))
+	transport := &captureTransport{}
+	client.HttpSearch = &http.Client{Transport: transport}
+
+	_, err := client.SearchArchiveContext(context.Background(), "search/id")
+	if err != nil {
+		t.Fatalf("SearchArchiveContext returned an error: %v", err)
+	}
+	if got, want := transport.request.URL.EscapedPath(), "/searches/search%2Fid.json"; got != want {
+		t.Fatalf("unexpected archive path: got %q, want %q", got, want)
+	}
+}
+
 func TestNewClientConfiguresTransport(t *testing.T) {
 	setting := NewSerpApiClientSetting("")
 	setting.Persistent = true

@@ -173,7 +173,7 @@ func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, e
 
 // SearchArchiveContext retrieves a previous search result and supports cancellation.
 func (client *SerpApiClient) SearchArchiveContext(ctx context.Context, id string) (map[string]interface{}, error) {
-	rsp, err := client.execute(ctx, "/searches/"+id+".json", "json", map[string]string{})
+	rsp, err := client.execute(ctx, "/searches/"+url.PathEscape(id)+".json", "json", map[string]string{})
 	if err != nil {
 		return nil, err
 	}
