@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -96,5 +97,52 @@ func TestSearchReturnsHTTPError(t *testing.T) {
 	}
 	if got := httpErr.Error(); got != fmt.Sprintf("serpapi request failed: 429 Too Many Requests: %s", httpErr.Body) {
 		t.Fatalf("unexpected error string: %q", got)
+	}
+}
+
+type captureTransport struct {
+	request *http.Request
+}
+
+func (transport *captureTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	transport.request = request
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Status:     "200 OK",
+		Body:       io.NopCloser(&stringReader{value: `{}`}),
+		Header:     make(http.Header),
+	}, nil
+}
+
+func TestSearchContextBuildsExpectedQuery(t *testing.T) {
+	setting := NewSerpApiClientSetting("secret")
+	setting.Parameter = map[string]string{
+		"hl": "en",
+		"gl": "us",
+	}
+	client := NewClient(setting)
+	transport := &captureTransport{}
+	client.HttpSearch = &http.Client{Transport: transport}
+
+	_, err := client.SearchContext(context.Background(), map[string]string{
+		"q":  "coffee",
+		"hl": "fr",
+	})
+	if err != nil {
+		t.Fatalf("SearchContext returned an error: %v", err)
+	}
+
+	query := transport.request.URL.Query()
+	expected := url.Values{
+		"api_key": {"secret"},
+		"engine":  {"google"},
+		"gl":      {"us"},
+		"hl":      {"fr"},
+		"output":  {"json"},
+		"q":       {"coffee"},
+		"source":  {"go:" + VERSION},
+	}
+	if query.Encode() != expected.Encode() {
+		t.Fatalf("unexpected query: got %s, want %s", query.Encode(), expected.Encode())
 	}
 }
