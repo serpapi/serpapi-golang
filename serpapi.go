@@ -36,6 +36,22 @@ type SerpApiClientSetting struct {
 	TLSHandshakeTimeout time.Duration     // Timeout for TLS handshake (default: 10 seconds)
 }
 
+// HTTPError describes a non-successful response from the SerpApi service.
+type HTTPError struct {
+	StatusCode int
+	Status     string
+	URL        string
+	Body       string
+}
+
+// Error returns a human-readable description of the HTTP failure.
+func (err *HTTPError) Error() string {
+	if err.Body == "" {
+		return fmt.Sprintf("serpapi request failed: %s", err.Status)
+	}
+	return fmt.Sprintf("serpapi request failed: %s: %s", err.Status, err.Body)
+}
+
 // NewSerpApiClientSetting initializes a new SerpApiClientSetting with default values
 func NewSerpApiClientSetting(serpApiKey string) SerpApiClientSetting {
 	return SerpApiClientSetting{
@@ -228,6 +244,22 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 	rsp, err := client.HttpSearch.Do(request)
 	if err != nil {
 		return nil, err
+	}
+	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
+		body, readErr := io.ReadAll(rsp.Body)
+		closeErr := rsp.Body.Close()
+		if readErr != nil {
+			return nil, readErr
+		}
+		if closeErr != nil {
+			return nil, closeErr
+		}
+		return nil, &HTTPError{
+			StatusCode: rsp.StatusCode,
+			Status:     rsp.Status,
+			URL:        endpoint,
+			Body:       string(body),
+		}
 	}
 	return rsp, nil
 }
