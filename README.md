@@ -56,6 +56,19 @@ Context-aware variants are available for `Search`, `Html`, `Markdown`, `Location
 `Account`, and `SearchArchive`. The original methods are backward-compatible
 convenience wrappers.
 
+### HTTP errors
+
+Non-successful HTTP responses return `*serpapi.HTTPError`. It exposes the HTTP
+status code, request URL, and response body so callers can handle rate limits
+and authentication failures explicitly:
+
+```golang
+var httpErr *serpapi.HTTPError
+if errors.As(err, &httpErr) {
+  fmt.Println(httpErr.StatusCode, httpErr.Body)
+}
+```
+
 ## Advanced Usage
 ### Search API
 ```golang
