@@ -242,12 +242,20 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 	query.Add("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()
+	// errors expose the URL, so never include the secret API key
+	query.Del("api_key")
+	redactedEndpoint := BaseURL + path + "?" + query.Encode()
+
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 	rsp, err := client.HttpSearch.Do(request)
 	if err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			urlErr.URL = redactedEndpoint
+		}
 		return nil, err
 	}
 	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
@@ -262,7 +270,7 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 		return nil, &HTTPError{
 			StatusCode: rsp.StatusCode,
 			Status:     rsp.Status,
-			URL:        endpoint,
+			URL:        redactedEndpoint,
 			Body:       string(body),
 		}
 	}

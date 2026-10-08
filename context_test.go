@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 )
@@ -54,6 +55,25 @@ func (reader *stringReader) Read(buffer []byte) (int, error) {
 	return copy(buffer, reader.value), nil
 }
 
+type failingTransport struct{}
+
+func (failingTransport) RoundTrip(*http.Request) (*http.Response, error) {
+	return nil, errors.New("connection refused")
+}
+
+func TestTransportErrorDoesNotLeakAPIKey(t *testing.T) {
+	client := NewClient(NewSerpApiClientSetting("secret_api_key"))
+	client.HttpSearch = &http.Client{Transport: failingTransport{}}
+
+	_, err := client.Search(map[string]string{"q": "coffee"})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+	if strings.Contains(err.Error(), "secret_api_key") {
+		t.Fatalf("error leaks the API key: %v", err)
+	}
+}
+
 func TestSearchRemainsUsableWithoutContext(t *testing.T) {
 	client := NewClient(NewSerpApiClientSetting(""))
 	client.HttpSearch = &http.Client{Transport: responseTransport{}}
@@ -79,7 +99,7 @@ func (errorTransport) RoundTrip(*http.Request) (*http.Response, error) {
 }
 
 func TestSearchReturnsHTTPError(t *testing.T) {
-	client := NewClient(NewSerpApiClientSetting(""))
+	client := NewClient(NewSerpApiClientSetting("secret_api_key"))
 	client.HttpSearch = &http.Client{Transport: errorTransport{}}
 
 	_, err := client.Search(map[string]string{"q": "coffee"})
@@ -95,6 +115,9 @@ func TestSearchReturnsHTTPError(t *testing.T) {
 	}
 	if httpErr.URL == "" {
 		t.Fatal("expected request URL in HTTPError")
+	}
+	if strings.Contains(httpErr.URL, "secret_api_key") {
+		t.Fatalf("HTTPError URL leaks the API key: %s", httpErr.URL)
 	}
 	if got := httpErr.Error(); got != fmt.Sprintf("serpapi request failed: 429 Too Many Requests: %s", httpErr.Body) {
 		t.Fatalf("unexpected error string: %q", got)
