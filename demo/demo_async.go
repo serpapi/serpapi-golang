@@ -45,10 +45,10 @@ func main() {
 	// Read SERPAPI key from environment variable
 	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
-		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
+		println("you must obtain an api_key from serpapi\n and set the environment variable SERPAPI_KEY\n $ export SERPAPI_KEY='secret api key'")
 	}
 	setting := serpapi.NewSerpApiClientSetting(api_key)
-	setting.Persistent = false                     // Enable persistent search
+	setting.Persistent = false                     // Close the HTTP connection after each request
 	setting.Asynchronous = true                    // Enable asynchronous search
 	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
 	setting.MaxIdleConnection = 10                 // Set maximum idle connections

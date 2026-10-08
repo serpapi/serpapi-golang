@@ -23,7 +23,7 @@ func main() {
 	// Read SERPAPI key from environment variable
 	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
-		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
+		println("you must obtain an api_key from serpapi\n and set the environment variable SERPAPI_KEY\n $ export SERPAPI_KEY='secret api key'")
 	}
 	// Initialize the SerpApi client
 	setting := serpapi.NewSerpApiClientSetting(api_key)
