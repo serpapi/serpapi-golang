@@ -17,7 +17,13 @@ go get -u github.com/serpapi/serpapi-golang
 ## Simple Usage
 
 ```golang
-import "github.com/serpapi/serpapi-golang"
+import (
+  "fmt"
+  "net/url"
+
+  "github.com/serpapi/serpapi-golang"
+)
+
 setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
 setting.Engine = "google" // Set the search engine to Google
 client := serpapi.NewClient(setting)
@@ -25,12 +31,31 @@ parameter := map[string]string{
   "q":             "Coffee",
   "location":      "Austin, Texas, United States",
 }
-results, err := client.Search(parameter)
-fmt.Println(results)
+for page := 1; page <= 3; page++ {
+  results, err := client.Search(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(results["organic_results"])
+
+  // follow serpapi_pagination.next until there are no more pages
+  pagination, _ := results["serpapi_pagination"].(map[string]interface{})
+  next, _ := pagination["next"].(string)
+  if next == "" {
+    break
+  }
+  nextURL, err := url.Parse(next)
+  if err != nil {
+    panic(err)
+  }
+  for name, values := range nextURL.Query() {
+    parameter[name] = values[0]
+  }
+}
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go map. 
-See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google and walks through the first 3 pages of results, each returned as a Go map.
+See [Pagination](#pagination) for details and the [playground](https://serpapi.com/playground) to generate your own code.
 
 ### Context-aware requests
 
@@ -2090,6 +2115,38 @@ func main() {
 
 This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). 
 Each search takes a few seconds before completion by SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might be already available in the archive. If not, the `search_archive` method blocks until the search results are available. 
+
+### Pagination
+
+Each response includes `serpapi_pagination.next` when more results are available.
+Merge the query parameters of that link into the next request until it is missing.
+
+```golang
+parameter := map[string]string{"q": "Coffee", "location": "Austin,Texas,United States"}
+for page := 1; page <= 3; page++ {
+	data, err := client.Search(parameter)
+	if err != nil {
+		panic(err)
+	}
+	results, _ := data["organic_results"].([]interface{})
+	fmt.Printf("page %d: %d results\n", page, len(results))
+
+	pagination, _ := data["serpapi_pagination"].(map[string]interface{})
+	next, _ := pagination["next"].(string)
+	if next == "" {
+		break
+	}
+	nextURL, err := url.Parse(next)
+	if err != nil {
+		panic(err)
+	}
+	for name, values := range nextURL.Query() {
+		parameter[name] = values[0]
+	}
+}
+```
+
+ * source code: [demo/demo.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo.go)
 
 ## Supported Go version.
 Go versions validated by Github Actions:
