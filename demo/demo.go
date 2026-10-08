@@ -32,7 +32,7 @@ func main() {
 		"q":        "Coffee",
 		"location": "Austin,Texas,United States",
 		"hl":       "en",
-		"gl":       "us"
+		"gl":       "us",
 	}
 	fmt.Println("search is running")
 	data, err := client.Search(parameter)

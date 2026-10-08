@@ -103,7 +103,7 @@ func main() {
 			"q":        query,
 			"location": "Austin, Texas, United States",
 			"hl":       "en",
-			"gl":       "us"
+			"gl":       "us",
 		}
 		fmt.Printf("Scheduled query for: %s\n", query)
 	}
