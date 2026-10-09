@@ -14,7 +14,7 @@ Go 1.17+ is required.
 go get -u github.com/serpapi/serpapi-golang
 ```
 
-## Simple Usage
+## Quick start
 
 ```golang
 import (
@@ -94,7 +94,8 @@ if errors.As(err, &httpErr) {
 }
 ```
 
-## Advanced Usage
+## Advanced usage
+
 ### Search API
 ```golang
 
@@ -152,7 +153,7 @@ func main() {
 [Google search documentation](https://serpapi.com/search-api).
 More hands on examples are available below.
 
-#### Documentations
+#### Documentation
 
  * [Full documentation on SerpApi.com](https://serpapi.com)
  * [Library Github page](https://github.com/serpapi/serpapi-golang)
@@ -274,7 +275,7 @@ It prints your account information.
 
 ## Basic examples in Go
 
-### Search google
+### Search Google
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -317,7 +318,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_test.go)
 * see: [serpapi.com/search-api](https://serpapi.com/search-api)
 
-### Search google light
+### Search Google Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -360,7 +361,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_light_test.go)
 * see: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
 
-### Search google scholar
+### Search Google Scholar
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -403,7 +404,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_scholar_test.go)
 * see: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
-### Search google autocomplete
+### Search Google Autocomplete
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -446,7 +447,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_autocomplete_test.go)
 * see: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
-### Search google product
+### Search Google Product
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -490,7 +491,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_product_test.go)
 * see: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
-### Search google reverse image
+### Search Google Reverse Image
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -533,7 +534,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_reverse_image_test.go)
 * see: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
-### Search google events
+### Search Google Events
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -576,7 +577,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_events_test.go)
 * see: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
-### Search google local services
+### Search Google Local Services
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -620,7 +621,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_local_services_test.go)
 * see: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
-### Search google maps
+### Search Google Maps
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -665,7 +666,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_maps_test.go)
 * see: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
-### Search google jobs
+### Search Google Jobs
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -708,7 +709,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_jobs_test.go)
 * see: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
-### Search google play
+### Search Google Play
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -752,7 +753,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_play_test.go)
 * see: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
 
-### Search google images
+### Search Google Images
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -796,7 +797,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_images_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_test.go)
 * see: [serpapi.com/images-results](https://serpapi.com/images-results)
 
-### Search google lens
+### Search Google Lens
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -839,7 +840,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_lens_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_lens_test.go)
 * see: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
 
-### Search google images light
+### Search Google Images Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -882,7 +883,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_images_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_light_test.go)
 * see: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
 
-### Search google hotels
+### Search Google Hotels
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -931,7 +932,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_hotels_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_hotels_test.go)
 * see: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
 
-### Search google flights
+### Search Google Flights
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -979,7 +980,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_flights_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_flights_test.go)
 * see: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
 
-### Search google finance
+### Search Google Finance
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1022,7 +1023,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_finance_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_finance_test.go)
 * see: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
 
-### Search google news
+### Search Google News
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1067,7 +1068,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_news_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_test.go)
 * see: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
 
-### Search google news light
+### Search Google News Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1110,7 +1111,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_news_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_light_test.go)
 * see: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
 
-### Search google patents
+### Search Google Patents
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1153,7 +1154,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_patents_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_patents_test.go)
 * see: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
 
-### Search google trends
+### Search Google Trends
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1197,7 +1198,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_trends_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_trends_test.go)
 * see: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
 
-### Search google shopping
+### Search Google Shopping
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1240,7 +1241,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_shopping_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_shopping_test.go)
 * see: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
 
-### Search google immersive product
+### Search Google Immersive Product
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1283,7 +1284,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_immersive_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_immersive_product_test.go)
 * see: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
 
-### Search google videos
+### Search Google Videos
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1326,7 +1327,7 @@ It prints your account information.
  * source code: [test/example/example_search_google_videos_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_videos_test.go)
 * see: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
 
-### Search amazon
+### Search Amazon
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1369,7 +1370,7 @@ It prints your account information.
  * source code: [test/example/example_search_amazon_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_amazon_test.go)
 * see: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
 
-### Search baidu
+### Search Baidu
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1412,7 +1413,7 @@ It prints your account information.
  * source code: [test/example/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_baidu_test.go)
 * see: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
 
-### Search yahoo
+### Search Yahoo
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1455,7 +1456,7 @@ It prints your account information.
  * source code: [test/example/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yahoo_test.go)
 * see: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
 
-### Search youtube
+### Search Youtube
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1498,7 +1499,7 @@ It prints your account information.
  * source code: [test/example/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_youtube_test.go)
 * see: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
 
-### Search walmart
+### Search Walmart
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1541,7 +1542,7 @@ It prints your account information.
  * source code: [test/example/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_walmart_test.go)
 * see: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
 
-### Search ebay
+### Search eBay
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1584,7 +1585,7 @@ It prints your account information.
  * source code: [test/example/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_ebay_test.go)
 * see: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 
-### Search naver
+### Search Naver
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1627,7 +1628,7 @@ It prints your account information.
  * source code: [test/example/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_naver_test.go)
 * see: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
 
-### Search home depot
+### Search Home Depot
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1670,7 +1671,7 @@ It prints your account information.
  * source code: [test/example/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_home_depot_test.go)
 * see: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
 
-### Search apple app store
+### Search Apple App Store
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1713,7 +1714,7 @@ It prints your account information.
  * source code: [test/example/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_apple_app_store_test.go)
 * see: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 
-### Search duckduckgo
+### Search DuckDuckGo
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1756,7 +1757,7 @@ It prints your account information.
  * source code: [test/example/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_duckduckgo_test.go)
 * see: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
-### Search yandex
+### Search Yandex
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1799,7 +1800,7 @@ It prints your account information.
  * source code: [test/example/example_search_yandex_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yandex_test.go)
 * see: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
 
-### Search yelp
+### Search Yelp
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -2011,12 +2012,12 @@ for page := 1; page <= 3; page++ {
 
  * source code: [demo/demo.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo.go)
 
-## Supported Go version.
+## Supported Go versions
 Go versions validated by Github Actions:
  - 1.17+
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
-## Change logs
+## Changelog
  * [2026-09-24] 1.3.0 Context-aware requests
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support
@@ -2029,7 +2030,7 @@ Go versions validated by Github Actions:
   - Build system and CI/CD enhancements
  * [2024-10-01] 1.0.0 Full API support
 
-## Developer Guide
+## Developer guide
 ### Key goals
  - Brand centric instead of search engine based
    - No hard-coded logic per search engine
