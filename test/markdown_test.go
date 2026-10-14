@@ -17,12 +17,35 @@ func TestMarkdown(t *testing.T) {
 	setting.Engine = "google"
 	client := serpapi.NewClient(setting)
 
+	parameter := map[string]string{
+		"q":        "Coffee",
+		"location": "Portland"}
+
+	data, err := client.Markdown(parameter)
+	if err != nil {
+		t.Fatalf("Markdown returned an error: %v", err)
+	}
+	if !strings.Contains(*data, "#") {
+		t.Error("data does not contain any markdown heading")
+	}
+}
+
+func TestMd(t *testing.T) {
+	if shoulSkip() {
+		t.Skip("SERPAPI_KEY required")
+		return
+	}
+
+	setting := serpapi.NewSerpApiClientSetting(getApiKey())
+	setting.Engine = "google"
+	client := serpapi.NewClient(setting)
+
 	markdown, err := client.Md(map[string]string{
 		"q":        "Coffee",
 		"location": "Austin, Texas, United States",
 	})
 	if err != nil {
-		t.Fatalf("Markdown returned an error: %v", err)
+		t.Fatalf("Md returned an error: %v", err)
 	}
 	if !strings.HasPrefix(*markdown, "---") {
 		t.Error("Markdown response does not contain YAML frontmatter")
