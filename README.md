@@ -8,16 +8,22 @@ Integrate search data into your Go application. This library is the official wra
 
 ## Installation
 
-Go 1.10+ is required. 
+Go 1.17+ is required.
 
 ```bash
 go get -u github.com/serpapi/serpapi-golang
 ```
 
-## Simple Usage
+## Quick start
 
 ```golang
-import "github.com/serpapi/serpapi-golang"
+import (
+  "fmt"
+  "net/url"
+
+  "github.com/serpapi/serpapi-golang"
+)
+
 setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
 setting.Engine = "google" // Set the search engine to Google
 client := serpapi.NewClient(setting)
@@ -25,21 +31,78 @@ parameter := map[string]string{
   "q":             "Coffee",
   "location":      "Austin, Texas, United States",
 }
-results, err := client.Search(parameter)
-fmt.Println(results)
+for page := 1; page <= 3; page++ {
+  results, err := client.Search(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(results["organic_results"])
+
+  // follow serpapi_pagination.next until there are no more pages
+  pagination, _ := results["serpapi_pagination"].(map[string]interface{})
+  next, _ := pagination["next"].(string)
+  if next == "" {
+    break
+  }
+  nextURL, err := url.Parse(next)
+  if err != nil {
+    panic(err)
+  }
+  for name, values := range nextURL.Query() {
+    parameter[name] = values[0]
+  }
+}
  ```
 
-This example runs a search for "coffee" on Google. It then returns the results a Go map. 
-See the [playground](https://serpapi.com/playground) to generate your own code.
+This example runs a search for "coffee" on Google and walks through the first 3 pages of results, each returned as a Go map.
+See [Pagination](#pagination) for details and the [playground](https://serpapi.com/playground) to generate your own code.
 
-## Advanced Usage
+### Context-aware requests
+
+The existing methods remain available and continue to use the client's configured
+timeout. For request-scoped cancellation or deadlines, use the corresponding
+`Context` method:
+
+```golang
+ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+defer cancel()
+
+results, err := client.SearchContext(ctx, map[string]string{
+  "q": "Coffee",
+})
+if err != nil {
+  // err may be context.Canceled or context.DeadlineExceeded.
+  panic(err)
+}
+fmt.Println(results)
+```
+
+Context-aware variants are available for `Search`, `Html`, `Markdown`, `Location`,
+`Account`, and `SearchArchive`. The original methods are backward-compatible
+convenience wrappers.
+
+### HTTP errors
+
+Non-successful HTTP responses return `*serpapi.HTTPError`. It exposes the HTTP
+status code, request URL (API key removed), and response body so callers can handle rate limits
+and authentication failures explicitly:
+
+```golang
+var httpErr *serpapi.HTTPError
+if errors.As(err, &httpErr) {
+  fmt.Println(httpErr.StatusCode, httpErr.Body)
+}
+```
+
+## Advanced usage
+
 ### Search API
 ```golang
 
 func main() {
-  // Initialize the client with custom setting
+  // Initialize the client with custom settings
 	setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
-	setting.Persistent = false                     // Enable persistent search
+	setting.Persistent = false                     // Close the HTTP connection after each request
 	setting.Asynchronous = true                    // Enable asynchronous search
 	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
 	setting.MaxIdleConnection = 10                 // Set maximum idle connections
@@ -60,7 +123,7 @@ func main() {
     "device":        "desktop",
   }
 
-  // formated search results as a map
+  // formatted search results as a map
   // serpapi.com converts HTML -> JSON
   rsp, err := client.Search(parameter)
 
@@ -69,24 +132,79 @@ func main() {
   }
   fmt.Println(rsp)
 
-  // raw search engine html as a String
-  // serpapi.com acts a proxy to provive high throughputs, no search limit and more.
+  // raw search engine HTML as a String
+  // serpapi.com acts as a proxy to provide high throughput, no search limit, and more.
   raw_html, err := client.Html(parameter)
-  if err != nil { 
+  if err != nil {
     panic(err)
   }
   fmt.Println(raw_html)
+
+  // search results as markdown optimized for LLMs and AI agents
+  // serpapi.com converts HTML -> Markdown
+  markdown, err := client.Markdown(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(markdown)
 }
 ```
 
 [Google search documentation](https://serpapi.com/search-api).
-More hands on examples are available below.
+More hands-on examples are available below.
 
-#### Documentations
+#### Documentation
 
  * [Full documentation on SerpApi.com](https://serpapi.com)
  * [Library Github page](https://github.com/serpapi/serpapi-golang)
  * [API health status](https://serpapi.com/status)
+
+### Markdown API
+
+`Markdown` returns the search results as markdown instead of JSON. The format is
+optimized for LLMs and AI agents: it carries most of the information found in the
+JSON response, but is far more token efficient thanks to tables, markdown links
+and YAML frontmatter.
+
+It is the `output=md` variant of the Search API, so it accepts exactly the same
+parameters as `Search` and `Html`.
+
+```golang
+ import (	
+  "github.com/serpapi/serpapi-golang" 
+  "fmt"
+  "strings"
+)
+
+ func main() {
+
+	// Initialize the SerpApi client with the API key
+	// and set the search engine to Google
+	setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+	setting.Engine = "google" // Set the search engine to Google
+	client := serpapi.NewClient(setting)
+
+	// Define the search parameters
+	parameter := map[string]string{
+		"q":        "Coffee",
+		"location": "Portland"}
+
+	// Perform the search and get the markdown response
+	data, err := client.Markdown(parameter)
+	if err != nil {
+		fmt.Println("err must be nil")
+		return
+	}
+	if !strings.Contains(*data, "#") {
+		fmt.Println("data does not contain any markdown heading")
+	}
+}
+
+```
+
+ * source code: [test/markdown_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/markdown_test.go)
+
+ * [Markdown output documentation](https://serpapi.com/blog/turning-search-results-into-markdown-for-llms/)
 
 ### Location API
 
@@ -111,60 +229,45 @@ It prints the first 5 locations matching Austin (Texas, Texas, Rochester)
 [map[canonical_name:Austin,TX,Texas,United States country_code:US google_id:200635 google_parent_id:21176 gps:[-97.7430608 30.267153]...
 ```
 
- - see: (test/location_test.go)
+ * source code: [test/location_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/location_test.go)
 
 ### Search Archive API
 
 This API allows retrieving previous search results.
 To fetch earlier results from the search_id.
 
-First, you need to run a search and save the search id.
+First, you need to run a search and save the search ID.
 ```golang
-// First, you need to run a search and save the search id.
-auth := map[string]string{
-  "engine":  "google",
-  "api_key": "secret_api_key",
-}
-client := serpapi.NewClient(auth)
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
+client := serpapi.NewClient(setting)
 parameter := map[string]string{
   "q":        "Coffee",
   "location": "Portland"}
 
 rsp, err := client.Search(parameter)
-
 if err != nil {
-  t.Error("unexpected error", err)
-  return
+  panic(err)
 }
 
 // Now let's retrieve the previous search results from the archive.
 searchID := rsp["search_metadata"].(map[string]interface{})["id"].(string)
-if len(searchID) == 0 {
-  t.Error("search_metadata.id must be defined")
-  return
-}
-
 searchArchive, err := client.SearchArchive(searchID)
 if err != nil {
-  t.Error(err)
-  return
+  panic(err)
 }
-
-searchIDArchive := searchArchive["search_metadata"].(map[string]interface{})["id"].(string)
-if searchIDArchive != searchID {
-  t.Error("search_metadata.id do not match", searchIDArchive, searchID)
-}
+fmt.Println(searchArchive["search_metadata"])
 ```
 
 This code prints the search results from the archive. :)
 
 ### Account API
 ```golang
-auth := map[string]string{
- "api_key": "<secret_api_key>"
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
+client := serpapi.NewClient(setting)
+rsp, err := client.Account()
+if err != nil {
+  panic(err)
 }
-client := serpapi.NewClient(auth)
-rsp, err = client.Account()
 fmt.Println(rsp)
 ```
 
@@ -172,7 +275,7 @@ It prints your account information.
 
 ## Basic examples in Go
 
-### Search google
+### Search Google
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -181,10 +284,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google", 
@@ -214,10 +315,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_test.go)
-* see: [serpapi.com/search-api](https://serpapi.com/search-api)
+ * Source code: [test/example/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_test.go)
+* See: [serpapi.com/search-api](https://serpapi.com/search-api)
 
-### Search google light
+### Search Google Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -226,10 +327,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_light", 
@@ -259,10 +358,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_light_test.go)
-* see: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
+ * Source code: [test/example/example_search_google_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_light_test.go)
+* See: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
 
-### Search google scholar
+### Search Google Scholar
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -271,10 +370,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_scholar", 
@@ -304,10 +401,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_scholar_test.go)
-* see: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
+ * Source code: [test/example/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_scholar_test.go)
+* See: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
-### Search google autocomplete
+### Search Google Autocomplete
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -316,10 +413,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_autocomplete", 
@@ -349,10 +444,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_autocomplete_test.go)
-* see: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
+ * Source code: [test/example/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_autocomplete_test.go)
+* See: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
-### Search google product
+### Search Google Product
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -361,10 +456,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_product", 
@@ -395,10 +488,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_product_test.go)
-* see: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
+ * Source code: [test/example/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_product_test.go)
+* See: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
-### Search google reverse image
+### Search Google Reverse Image
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -407,10 +500,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_reverse_image", 
@@ -440,10 +531,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_reverse_image_test.go)
-* see: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
+ * Source code: [test/example/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_reverse_image_test.go)
+* See: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
-### Search google events
+### Search Google Events
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -452,10 +543,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_events", 
@@ -485,10 +574,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_events_test.go)
-* see: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
+ * Source code: [test/example/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_events_test.go)
+* See: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
-### Search google local services
+### Search Google Local Services
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -497,10 +586,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_local_services", 
@@ -531,10 +618,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_local_services_test.go)
-* see: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
+ * Source code: [test/example/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_local_services_test.go)
+* See: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
-### Search google maps
+### Search Google Maps
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -543,10 +630,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_maps", 
@@ -578,10 +663,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_maps_test.go)
-* see: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
+ * Source code: [test/example/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_maps_test.go)
+* See: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
-### Search google jobs
+### Search Google Jobs
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -590,10 +675,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_jobs", 
@@ -623,10 +706,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_jobs_test.go)
-* see: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
+ * Source code: [test/example/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_jobs_test.go)
+* See: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
-### Search google play
+### Search Google Play
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -635,10 +718,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_play", 
@@ -669,10 +750,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_play_test.go)
-* see: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
+ * Source code: [test/example/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_play_test.go)
+* See: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
 
-### Search google images
+### Search Google Images
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -681,10 +762,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_images", 
@@ -715,10 +794,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_images_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_test.go)
-* see: [serpapi.com/images-results](https://serpapi.com/images-results)
+ * Source code: [test/example/example_search_google_images_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_test.go)
+* See: [serpapi.com/images-results](https://serpapi.com/images-results)
 
-### Search google lens
+### Search Google Lens
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -727,10 +806,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_lens", 
@@ -760,10 +837,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_lens_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_lens_test.go)
-* see: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
+ * Source code: [test/example/example_search_google_lens_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_lens_test.go)
+* See: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
 
-### Search google images light
+### Search Google Images Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -772,10 +849,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_images_light", 
@@ -805,10 +880,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_images_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_light_test.go)
-* see: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
+ * Source code: [test/example/example_search_google_images_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_light_test.go)
+* See: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
 
-### Search google hotels
+### Search Google Hotels
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -817,10 +892,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_hotels", 
@@ -856,10 +929,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_hotels_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_hotels_test.go)
-* see: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
+ * Source code: [test/example/example_search_google_hotels_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_hotels_test.go)
+* See: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
 
-### Search google flights
+### Search Google Flights
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -868,10 +941,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_flights", 
@@ -906,10 +977,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_flights_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_flights_test.go)
-* see: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
+ * Source code: [test/example/example_search_google_flights_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_flights_test.go)
+* See: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
 
-### Search google finance
+### Search Google Finance
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -918,10 +989,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_finance", 
@@ -951,10 +1020,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_finance_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_finance_test.go)
-* see: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
+ * Source code: [test/example/example_search_google_finance_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_finance_test.go)
+* See: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
 
-### Search google ai overview
+### Search Google News
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -963,55 +1032,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
-
-  parameter := map[string]string{
-    "engine": "google_ai_overview", 
-    "page_token": "KIVu-nictZPdjrI4GMeTPdkrWU8cFXV0dBKyKbUgiigy6OgJQawFQapUBpmzvZe9qr2aLYzO6I5vsm-yW0Ip7dPn4__L88efoR8Ff_36i3c87tlzrZamaZVQSkJcdemu5rAscmsbGrLY9X5PkhCLaRkC1VCh6hivs_e1EiaaPA2xIr9r8ixxXqfhEkova0UWlq-jEgnFhJW8UMRRKXsTmyWXiUIJ-2JTJ2jZxnTINvK-8zgJBtEiM4JSEVG0Vw7DW57Qactqdo1PwW_NHv-psiqObMusqpNU7ZM-OFlWFbNWdVxzdtwE_NsBv5YSJMblF5K71vwcgkAqlvk0569vIPXsx0D5pALt0Tbd6yAqUD4jJfxVZYAu0dN8gc6H9MfREVKlyu2WWszcgQx4zCKlD0dGnmJ_wEu6mI5BBfQJHkknc_69LGK8gP5e65BzXTeDDEziu0wH0KitCRdXqK1i_qnXYpZLDV-6ApW7TlzvmoJE585mMs2icNfe4-28-dYBDwVGl31yZNcc9acEefre8kxQ1apS_YLQGFMuZZ7OAPSl_T0cXAD0hZDXTPjDUMp3ehlfAj3fAL2Uu3G55eJyL_isTbLgl7NcPpRLJ5-lLdwWMCDKD-E4FyvHE3CEfTrN0JkAzC8qCliQQ35jiMk5pQ9FFx-6WoU5gmBiqJIKJBW6eRflSYaFMTpXQhDwB8EtQgDMuyJcj-EP9iVwh5nSSA9O3PXh-MWakaC52oRuJREk3dxcmNHd6qeaz_1_uHq8NZMzV3if621rEmkOL62Za4KMnKuhX7XmmesIKAieuSZXXOFPcEXWKG_N71zTgitvTatgm3M1tv_k-l-1ZoEXf3xu-zTZkm_92obr02LIdCKkM_9oyVJMuo2t5Wmx8WBvdsfnfUzJg-2vn6XG4JitSwfRo2l5TTErO_GxnNI4KPtR2YnWMfXXpV0YU1FwWvG7NyOVXlyJvK129AUN6TFI3JPk4MZ4OfLdKNzoShtnpl3RfNxij748svedxMtmmI3e-gc6kgJFVye-qg48j7Rwo71OcbA7dA9-NBe2o2napHMzmuMFQWqr9zSVtJXmKbbej73jI7XHPaymnfBdEIqsmPg6RI_L1URaVmiJuY6N2ZtYb3U3zSen3mjV611h0y3tyDHbi_W_AU9HHA0",  }
-  rsp, err := client.Search(parameter)
-
-  if err != nil {
-    fmt.Println("unexpected error", err)
-    return
-  }
-
-  if rsp["search_metadata"].(map[string]interface{})["status"] != "Success" {
-    fmt.Println("bad status")
-    return
-  }
-
-  if rsp["ai_overview"] == nil {
-    fmt.Println("key is not found: ai_overview")
-    return 
-  }
-
-  if len(rsp["ai_overview"].([]interface{})) < 5 {
-    fmt.Println("expect more than 5 ai_overview") 
-    return
-  }
-}  
-
-```
-
- * source code: [test/example/example_search_google_ai_overview_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_ai_overview_test.go)
-* see: [serpapi.com/google-ai-overview-api](https://serpapi.com/google-ai-overview-api)
-
-### Search google news
-```golang
- import (	
-  "github.com/serpapi/serpapi-golang" 
-  "fmt"
-)
-
- func main() {
-
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_news", 
@@ -1043,10 +1065,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_news_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_test.go)
-* see: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
+ * Source code: [test/example/example_search_google_news_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_test.go)
+* See: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
 
-### Search google news light
+### Search Google News Light
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1055,10 +1077,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_news_light", 
@@ -1088,10 +1108,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_news_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_light_test.go)
-* see: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
+ * Source code: [test/example/example_search_google_news_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_light_test.go)
+* See: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
 
-### Search google patents
+### Search Google Patents
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1100,10 +1120,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_patents", 
@@ -1133,10 +1151,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_patents_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_patents_test.go)
-* see: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
+ * Source code: [test/example/example_search_google_patents_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_patents_test.go)
+* See: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
 
-### Search google trends
+### Search Google Trends
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1145,10 +1163,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_trends", 
@@ -1179,10 +1195,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_trends_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_trends_test.go)
-* see: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
+ * Source code: [test/example/example_search_google_trends_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_trends_test.go)
+* See: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
 
-### Search google shopping
+### Search Google Shopping
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1191,10 +1207,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_shopping", 
@@ -1224,10 +1238,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_shopping_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_shopping_test.go)
-* see: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
+ * Source code: [test/example/example_search_google_shopping_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_shopping_test.go)
+* See: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
 
-### Search google immersive product
+### Search Google Immersive Product
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1236,10 +1250,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_immersive_product", 
@@ -1269,10 +1281,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_immersive_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_immersive_product_test.go)
-* see: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
+ * Source code: [test/example/example_search_google_immersive_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_immersive_product_test.go)
+* See: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
 
-### Search google videos
+### Search Google Videos
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1281,10 +1293,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "google_videos", 
@@ -1314,10 +1324,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_videos_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_videos_test.go)
-* see: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
+ * Source code: [test/example/example_search_google_videos_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_videos_test.go)
+* See: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
 
-### Search amazon
+### Search Amazon
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1326,10 +1336,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "amazon", 
@@ -1359,10 +1367,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_amazon_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_amazon_test.go)
-* see: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
+ * Source code: [test/example/example_search_amazon_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_amazon_test.go)
+* See: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
 
-### Search baidu
+### Search Baidu
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1371,10 +1379,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "baidu", 
@@ -1404,10 +1410,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_baidu_test.go)
-* see: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
+ * Source code: [test/example/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_baidu_test.go)
+* See: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
 
-### Search yahoo
+### Search Yahoo
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1416,10 +1422,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "yahoo", 
@@ -1449,10 +1453,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yahoo_test.go)
-* see: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
+ * Source code: [test/example/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yahoo_test.go)
+* See: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
 
-### Search youtube
+### Search YouTube
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1461,10 +1465,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "youtube", 
@@ -1494,10 +1496,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_youtube_test.go)
-* see: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
+ * Source code: [test/example/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_youtube_test.go)
+* See: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
 
-### Search walmart
+### Search Walmart
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1506,10 +1508,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "walmart", 
@@ -1539,10 +1539,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_walmart_test.go)
-* see: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
+ * Source code: [test/example/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_walmart_test.go)
+* See: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
 
-### Search ebay
+### Search eBay
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1551,10 +1551,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "ebay", 
@@ -1584,10 +1582,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_ebay_test.go)
-* see: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
+ * Source code: [test/example/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_ebay_test.go)
+* See: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 
-### Search naver
+### Search Naver
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1596,10 +1594,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "naver", 
@@ -1629,10 +1625,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_naver_test.go)
-* see: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
+ * Source code: [test/example/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_naver_test.go)
+* See: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
 
-### Search home depot
+### Search Home Depot
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1641,10 +1637,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "home_depot", 
@@ -1674,10 +1668,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_home_depot_test.go)
-* see: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
+ * Source code: [test/example/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_home_depot_test.go)
+* See: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
 
-### Search apple app store
+### Search Apple App Store
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1686,10 +1680,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "apple_app_store", 
@@ -1719,10 +1711,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_apple_app_store_test.go)
-* see: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
+ * Source code: [test/example/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_apple_app_store_test.go)
+* See: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 
-### Search duckduckgo
+### Search DuckDuckGo
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1731,10 +1723,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "duckduckgo", 
@@ -1764,10 +1754,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_duckduckgo_test.go)
-* see: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
+ * Source code: [test/example/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_duckduckgo_test.go)
+* See: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
-### Search yandex
+### Search Yandex
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1776,10 +1766,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "yandex", 
@@ -1809,10 +1797,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yandex_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yandex_test.go)
-* see: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
+ * Source code: [test/example/example_search_yandex_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yandex_test.go)
+* See: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
 
-### Search yelp
+### Search Yelp
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1821,10 +1809,8 @@ It prints your account information.
 
  func main() {
 
-  auth := map[string]string{
-    "api_key": "secret_api_key",
-  }
-  client := serpapi.NewClient(auth)
+  setting := serpapi.NewSerpApiClientSetting("secret_api_key")
+  client := serpapi.NewClient(setting)
 
   parameter := map[string]string{
     "engine": "yelp", 
@@ -1855,8 +1841,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yelp_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yelp_test.go)
-* see: [serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
+ * Source code: [test/example/example_search_yelp_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yelp_test.go)
+* See: [serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
 
 ## Advanced search API usage
 ### Highly scalable batching
@@ -1866,17 +1852,12 @@ Search API features non-blocking search using the option: `async=true`.
  - Blocking - async=false - many processes must be forked and synchronized to handle concurrent searches. This strategy is I/O intensive because each client would hold a network connection.
 
 Search API enables `async` search.
- - Non-blocking (`async=true`) : the development is more complex, but this allows handling many simultaneous connections.
- - Blocking (`async=false`) : it's easy to write the code but more compute-intensive when the parent process needs to hold many connections.
+ - Non-blocking (`async=true`): the development is more complex, but this allows handling many simultaneous connections.
+ - Blocking (`async=false`): it's easy to write the code, but more compute-intensive when the parent process needs to hold many connections.
 
 Here is an example of asynchronous searches using Go 
 ```golang
- import (	
-  "github.com/serpapi/serpapi-golang" 
-  "fmt"
-)
-
- func main() {
+package main
 
 import (
 	"fmt"
@@ -1886,8 +1867,8 @@ import (
 )
 
 /***
- * The code snippet aims to improve the efficiency of searching using the SerpApi client using `async` mode.
- * The request are non-blocking which allows batching a large amount of query, and wait before fetching the result back.
+ * The code snippet aims to improve the efficiency of searching using the SerpApi client in `async` mode.
+ * The requests are non-blocking, which allows batching a large number of queries and waiting before fetching the results back.
  *
  * **Process:**
  * 1. **Request Queue:** The company list is iterated over, and each company is queried using the SerpApi client. Requests
@@ -1923,10 +1904,10 @@ func main() {
 	// Read SERPAPI key from environment variable
 	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
-		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
+		println("you must obtain an api_key from serpapi\n and set the environment variable SERPAPI_KEY\n $ export SERPAPI_KEY='secret api key'")
 	}
 	setting := serpapi.NewSerpApiClientSetting(api_key)
-	setting.Persistent = false                     // Enable persistent search
+	setting.Persistent = false                     // Close the HTTP connection after each request
 	setting.Asynchronous = true                    // Enable asynchronous search
 	setting.Timeout = 60 * time.Second             // Set timeout for HTTP requests
 	setting.MaxIdleConnection = 10                 // Set maximum idle connections
@@ -1997,14 +1978,51 @@ func main() {
  * source code: [demo/demo_async.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo_async.go)
 
 This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). 
-Each search takes a few seconds before completion by SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might be already available in the archive. If not, the `search_archive` method blocks until the search results are available. 
+Each search takes a few seconds to complete via the SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might already be available in the archive. If not, the `search_archive` method blocks until the search results are available. 
 
-## Supported Go version.
-Go versions validated by Github Actions:
+### Pagination
+
+Each response includes `serpapi_pagination.next` when more results are available.
+Merge the query parameters of that link into the next request until it is missing.
+
+```golang
+parameter := map[string]string{"q": "Coffee", "location": "Austin,Texas,United States"}
+for page := 1; page <= 3; page++ {
+	data, err := client.Search(parameter)
+	if err != nil {
+		panic(err)
+	}
+	results, _ := data["organic_results"].([]interface{})
+	fmt.Printf("page %d: %d results\n", page, len(results))
+
+	pagination, _ := data["serpapi_pagination"].(map[string]interface{})
+	next, _ := pagination["next"].(string)
+	if next == "" {
+		break
+	}
+	nextURL, err := url.Parse(next)
+	if err != nil {
+		panic(err)
+	}
+	for name, values := range nextURL.Query() {
+		parameter[name] = values[0]
+	}
+}
+```
+
+ * source code: [demo/demo.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo.go)
+
+## Supported Go versions
+Go versions validated by GitHub Actions:
  - 1.17+
- * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
+ * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
-## Change logs
+## Changelog
+ * [2026-09-24] 1.3.0 Context-aware requests
+  - Added backward-compatible `Context` variants for all API methods
+  - Added request cancellation and deadline support
+ * [2026-08-16] 1.2.0 Markdown output support
+  - New `Markdown()` method returning `output=md` results optimized for LLMs and AI agents
  * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
   - Major features (async/persistent mode, API key handling, client configuration)
   - New test examples
@@ -2012,30 +2030,29 @@ Go versions validated by Github Actions:
   - Build system and CI/CD enhancements
  * [2024-10-01] 1.0.0 Full API support
 
-## Developer Guide
+## Developer guide
 ### Key goals
- - Brand centric instead of search engine based
+ - Brand-centric instead of search engine-based
    - No hard-coded logic per search engine
  - Simple HTTP client (lightweight, reduced dependency)
    - No magic default values
-   - Thread safe
+   - Thread-safe
  - Easy extension
  - Defensive code style (raise a custom exception)
  - TDD
  - Best API coding practice per platform
- - KiSS principles
+ - KISS principles
 
 ### Inspirations
 The source code and coding style of this project are inspired by Go.
 The Go programming language provides native recommendations for building excellent software.
 
 ### Code quality expectations
- - 0 lint offense: `make lint`
+ - 0 lint offenses: `make lint`
  - 100% tests passing: `make test`
- - 100% code coverage: `make test`
+ - Code coverage report: `make coverage`
 
-# Developer Guide
-## Design : UML diagram
+## Design: UML diagram
 ### Class diagram
 ```mermaid
 classDiagram
@@ -2047,6 +2064,7 @@ classDiagram
     params Map
     search() Map
     html() String
+    markdown() String
     location() String
     search_archive() Map
     account() Map
@@ -2076,27 +2094,27 @@ The SerpApi.com service (backend)
  - executes a scalable search on `engine: "google"` using the search query: `q: "coffee"`.
  - parses the messy HTML responses from Google on the backend.
  - returns a standardized JSON response.
-The class serpapi.Client (client side / golang):
- - Format the request to SerpApi.com server.
- - Execute HTTP Get request.
- - Parse JSON into Go map using a standard JSON library.
+The class serpapi.Client (client-side / Golang):
+ - Formats the request to the SerpApi.com server.
+ - Executes an HTTP GET request.
+ - Parses JSON into a Go map using a standard JSON library.
 Et voila!
 
 ## Continuous integration
-We love "true open source" and "continuous integration", and Test Drive Development (TDD).
- We are using Go test to test [our infrastructure around the clock]) using Github Action to achieve the best QoS (Quality Of Service).
+We love "true open source" and "continuous integration", and Test-Driven Development (TDD).
+ We are using Go tests to test [our infrastructure around the clock]) using GitHub Actions to achieve the best QoS (Quality of Service).
 
-The directory test/ includes specification which serves the dual purposes of examples and functional tests.
+The directory test/ includes specification which serves the dual purpose of examples and functional tests.
 
 Set your secret API key in your shell before running a test.
 ```bash
-export API_KEY="your_secret_key"
+export SERPAPI_KEY="your_secret_key"
 ```
 Install testing dependency
 ```bash
 $ make test
 ```
-Contributions are welcome. Feel to submit a pull request!
+Contributions are welcome. Feel free to submit a pull request!
 
 ## License
 
