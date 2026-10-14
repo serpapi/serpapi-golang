@@ -10,14 +10,11 @@ import (
 //
 func TestGoogleLocalServices(t *testing.T) {
   if shoulSkip() {
-    t.Skip("SERPSERPAPI_KEY required")
+    t.Skip("SERPAPI_KEY required")
     return
   }
 
-  auth := map[string]string{
-    "api_key": *getApiKey(),
-  }
-  client := serpapi.NewClient(auth)
+  client := serpapi.NewClient(serpapi.NewSerpApiClientSetting(getApiKey()))
 
   parameter := map[string]string{
     "engine": "google_local_services", 
