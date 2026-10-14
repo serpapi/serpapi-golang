@@ -65,7 +65,7 @@ Use `Search` for structured JSON results decoded into a Go map:
 results, err := client.Search(parameter)
 ```
 
-Use `Markdown` (or its short alias `Md`) for a token-efficient Markdown string optimized for LLMs and AI agents:
+Use `Md` for a token-efficient Markdown string optimized for LLMs and AI agents:
 
 ```golang
 markdown, err := client.Md(parameter)
@@ -99,7 +99,7 @@ if err != nil {
 fmt.Println(results)
 ```
 
-Context-aware variants are available for `Search`, `Html`, `Markdown`, `Location`,
+Context-aware variants are available for `Search`, `Html`, `Md` (`MarkdownContext`), `Location`,
 `Account`, `SearchArchive`, and `SearchArchiveMd`. The original methods are backward-compatible
 convenience wrappers.
 
@@ -168,14 +168,6 @@ func main() {
     panic(err)
   }
   fmt.Println(raw_html)
-
-  // search results as markdown optimized for LLMs and AI agents
-  // serpapi.com converts HTML -> Markdown
-  markdown, err := client.Markdown(parameter)
-  if err != nil {
-    panic(err)
-  }
-  fmt.Println(markdown)
 }
 ```
 
@@ -190,7 +182,7 @@ More hands on examples are available below.
 
 ### Markdown API
 
-`Markdown` returns the search results as markdown instead of JSON. The format is
+`Md` returns the search results as markdown instead of JSON. The format is
 optimized for LLMs and AI agents: it carries most of the information found in the
 JSON response, but is far more token efficient thanks to tables, markdown links
 and YAML frontmatter.
@@ -219,7 +211,7 @@ parameters as `Search` and `Html`.
 		"location": "Portland"}
 
 	// Perform the search and get the markdown response
-	data, err := client.Markdown(parameter)
+	data, err := client.Md(parameter)
 	if err != nil {
 		fmt.Println("err must be nil")
 		return
@@ -2055,11 +2047,13 @@ Go versions validated by Github Actions:
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
+ * [2026-10-13] 1.3.1 Markdown output improvements
+  - **Breaking:** `Markdown()` is removed, use `Md()` instead (`MarkdownContext()` is unchanged)
+  - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
+  - Decode JSON API errors returned for Markdown requests
  * [2026-09-24] 1.3.0 Context-aware requests
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support
-  - Added `Md()` alias, `SearchArchiveMd()` and `SearchArchiveMdContext()` for Markdown output
-  - Decode JSON API errors returned for Markdown requests
  * [2026-08-16] 1.2.0 Markdown output support
   - New `Markdown()` method returning `output=md` results optimized for LLMs and AI agents
  * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
@@ -2104,7 +2098,6 @@ classDiagram
     search() Map
     md() String
     html() String
-    markdown() String
     location() String
     search_archive() Map
     search_archive_md() String

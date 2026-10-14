@@ -7,29 +7,6 @@ import (
 	"github.com/serpapi/serpapi-golang"
 )
 
-func TestMarkdown(t *testing.T) {
-	if shoulSkip() {
-		t.Skip("SERPAPI_KEY required")
-		return
-	}
-
-	setting := serpapi.NewSerpApiClientSetting(getApiKey())
-	setting.Engine = "google"
-	client := serpapi.NewClient(setting)
-
-	parameter := map[string]string{
-		"q":        "Coffee",
-		"location": "Portland"}
-
-	data, err := client.Markdown(parameter)
-	if err != nil {
-		t.Fatalf("Markdown returned an error: %v", err)
-	}
-	if !strings.Contains(*data, "#") {
-		t.Error("data does not contain any markdown heading")
-	}
-}
-
 func TestMd(t *testing.T) {
 	if shoulSkip() {
 		t.Skip("SERPAPI_KEY required")

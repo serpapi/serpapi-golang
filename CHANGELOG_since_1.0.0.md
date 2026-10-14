@@ -3,6 +3,15 @@
 ## Overview
 This document summarizes all changes made to the SerpApi Go library since tag `1.0.0` was created.
 
+## v1.3.1 - 2026-10-13
+
+- Added `Md()` as the method returning Markdown results.
+- Added `SearchArchiveMd` and `SearchArchiveMdContext` to retrieve archived results as Markdown.
+- Markdown requests return the JSON `error` message when the API responds with a JSON error.
+
+**Breaking changes:**
+- `Markdown()` is removed; use `Md()`. `MarkdownContext` is unchanged.
+
 ## v1.3.0 - 2026-09-24
 
 - Added `Context` variants (`SearchContext`, `HtmlContext`, `MarkdownContext`, `LocationContext`, `AccountContext`, `SearchArchiveContext`) for cancellation and deadlines. Existing methods are unchanged wrappers.

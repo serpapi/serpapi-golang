@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	VERSION        = "1.3.0"
+	VERSION        = "1.3.1"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
@@ -119,13 +119,8 @@ func (client *SerpApiClient) HtmlContext(ctx context.Context, parameter map[stri
 	return client.decodeText(rsp.Body)
 }
 
-// Md returns search results formatted as Markdown. It is a short alias of Markdown.
+// Md returns the search result as markdown optimized for LLMs and AI agents
 func (client *SerpApiClient) Md(parameter map[string]string) (*string, error) {
-	return client.Markdown(parameter)
-}
-
-// Markdown returns the search result as markdown optimized for LLMs and AI agents
-func (client *SerpApiClient) Markdown(parameter map[string]string) (*string, error) {
 	return client.MarkdownContext(context.Background(), parameter)
 }
 
