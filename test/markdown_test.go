@@ -36,7 +36,7 @@ func TestMd(t *testing.T) {
 	}
 }
 
-func TestMarkdownContext(t *testing.T) {
+func TestMdContext(t *testing.T) {
 	if shoulSkip() {
 		t.Skip("SERPAPI_KEY required")
 		return
@@ -47,12 +47,12 @@ func TestMarkdownContext(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
-	markdown, err := client.MarkdownContext(ctx, map[string]string{
+	markdown, err := client.MdContext(ctx, map[string]string{
 		"q":        "Coffee",
 		"location": "Portland",
 	})
 	if err != nil {
-		t.Fatalf("MarkdownContext returned an error: %v", err)
+		t.Fatalf("MdContext returned an error: %v", err)
 	}
 	if !strings.HasPrefix(*markdown, "---") {
 		t.Error("Markdown response does not contain YAML frontmatter")

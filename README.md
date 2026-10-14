@@ -99,7 +99,7 @@ if err != nil {
 fmt.Println(results)
 ```
 
-Context-aware variants are available for `Search`, `Html`, `Md` (`MarkdownContext`), `Location`,
+Context-aware variants are available for `Search`, `Html`, `Md`, `Location`,
 `Account`, `SearchArchive`, and `SearchArchiveMd`. The original methods are backward-compatible
 convenience wrappers.
 
@@ -2048,7 +2048,7 @@ Go versions validated by GitHub Actions:
 
 ## Changelog
  * [2026-09-24] 1.3.0 Context-aware requests
-  - **Breaking:** `Markdown()` is removed, use `Md()` instead (`MarkdownContext()` is unchanged)
+  - **Breaking:** `Markdown()` is renamed to `Md()`
   - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support

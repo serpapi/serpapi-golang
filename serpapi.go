@@ -119,11 +119,11 @@ func (client *SerpApiClient) HtmlContext(ctx context.Context, parameter map[stri
 
 // Md returns the search result as markdown optimized for LLMs and AI agents
 func (client *SerpApiClient) Md(parameter map[string]string) (*string, error) {
-	return client.MarkdownContext(context.Background(), parameter)
+	return client.MdContext(context.Background(), parameter)
 }
 
-// MarkdownContext returns markdown search results and supports cancellation.
-func (client *SerpApiClient) MarkdownContext(ctx context.Context, parameter map[string]string) (*string, error) {
+// MdContext returns markdown search results and supports cancellation.
+func (client *SerpApiClient) MdContext(ctx context.Context, parameter map[string]string) (*string, error) {
 	rsp, err := client.execute(ctx, "/search", "md", parameter)
 	if err != nil {
 		return nil, err
