@@ -2050,7 +2050,6 @@ Go versions validated by Github Actions:
  * [2026-10-13] 1.3.1 Markdown output improvements
   - **Breaking:** `Markdown()` is removed, use `Md()` instead (`MarkdownContext()` is unchanged)
   - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
-  - Decode JSON API errors returned for Markdown requests
  * [2026-09-24] 1.3.0 Context-aware requests
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support

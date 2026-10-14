@@ -6,11 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime"
 	"net"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -131,7 +129,7 @@ func (client *SerpApiClient) MarkdownContext(ctx context.Context, parameter map[
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	return client.decodeMarkdown(rsp)
+	return client.decodeText(rsp.Body)
 }
 
 // Location returns standardized location data
@@ -195,7 +193,7 @@ func (client *SerpApiClient) SearchArchiveMdContext(ctx context.Context, id stri
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	return client.decodeMarkdown(rsp)
+	return client.decodeText(rsp.Body)
 }
 
 // decodeJSON decodes response body to a map
@@ -227,34 +225,6 @@ func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	text := string(buffer)
-	return &text, nil
-}
-
-// decodeMarkdown decodes Markdown responses to a string. SerpApi returns
-// API errors as JSON even when Markdown output was requested.
-func (client *SerpApiClient) decodeMarkdown(rsp *http.Response) (*string, error) {
-	buffer, err := io.ReadAll(rsp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	mediaType, _, _ := mime.ParseMediaType(rsp.Header.Get("Content-Type"))
-	mediaType = strings.ToLower(mediaType)
-	isJSON := mediaType == "application/json" || strings.HasSuffix(mediaType, "+json")
-	if isJSON {
-		var data map[string]interface{}
-		if err := json.Unmarshal(buffer, &data); err == nil {
-			if errorMessage, exists := data["error"].(string); exists {
-				return nil, errors.New(errorMessage)
-			}
-		}
-	}
-
-	if isJSON {
-		return nil, errors.New("expected a Markdown response, received JSON")
-	}
-
 	text := string(buffer)
 	return &text, nil
 }

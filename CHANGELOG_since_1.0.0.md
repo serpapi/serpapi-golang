@@ -7,7 +7,6 @@ This document summarizes all changes made to the SerpApi Go library since tag `1
 
 - Added `Md()` as the method returning Markdown results.
 - Added `SearchArchiveMd` and `SearchArchiveMdContext` to retrieve archived results as Markdown.
-- Markdown requests return the JSON `error` message when the API responds with a JSON error.
 
 **Breaking changes:**
 - `Markdown()` is removed; use `Md()`. `MarkdownContext` is unchanged.
