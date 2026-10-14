@@ -1,3 +1,5 @@
 .DS_Store
 .env
 sandbox/
+coverage.html
+coverage.out
