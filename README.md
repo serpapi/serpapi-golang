@@ -100,7 +100,7 @@ if errors.As(err, &httpErr) {
 ```golang
 
 func main() {
-  // Initialize the client with custom setting
+  // Initialize the client with custom settings
 	setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
 	setting.Persistent = false                     // Close the HTTP connection after each request
 	setting.Asynchronous = true                    // Enable asynchronous search
@@ -132,8 +132,8 @@ func main() {
   }
   fmt.Println(rsp)
 
-  // raw search engine html as a String
-  // serpapi.com acts as a proxy to provide high throughput, no search limit and more.
+  // raw search engine HTML as a String
+  // serpapi.com acts as a proxy to provide high throughput, no search limit, and more.
   raw_html, err := client.Html(parameter)
   if err != nil {
     panic(err)
@@ -151,7 +151,7 @@ func main() {
 ```
 
 [Google search documentation](https://serpapi.com/search-api).
-More hands on examples are available below.
+More hands-on examples are available below.
 
 #### Documentation
 
@@ -236,7 +236,7 @@ It prints the first 5 locations matching Austin (Texas, Texas, Rochester)
 This API allows retrieving previous search results.
 To fetch earlier results from the search_id.
 
-First, you need to run a search and save the search id.
+First, you need to run a search and save the search ID.
 ```golang
 setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>") // Replace with your SerpApi key
 client := serpapi.NewClient(setting)
@@ -315,8 +315,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_test.go)
-* see: [serpapi.com/search-api](https://serpapi.com/search-api)
+ * Source code: [test/example/example_search_google_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_test.go)
+* See: [serpapi.com/search-api](https://serpapi.com/search-api)
 
 ### Search Google Light
 ```golang
@@ -358,8 +358,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_light_test.go)
-* see: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
+ * Source code: [test/example/example_search_google_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_light_test.go)
+* See: [serpapi.com/google-light-api](https://serpapi.com/google-light-api)
 
 ### Search Google Scholar
 ```golang
@@ -401,8 +401,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_scholar_test.go)
-* see: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
+ * Source code: [test/example/example_search_google_scholar_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_scholar_test.go)
+* See: [serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
 
 ### Search Google Autocomplete
 ```golang
@@ -444,8 +444,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_autocomplete_test.go)
-* see: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
+ * Source code: [test/example/example_search_google_autocomplete_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_autocomplete_test.go)
+* See: [serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
 
 ### Search Google Product
 ```golang
@@ -488,8 +488,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_product_test.go)
-* see: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
+ * Source code: [test/example/example_search_google_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_product_test.go)
+* See: [serpapi.com/google-product-api](https://serpapi.com/google-product-api)
 
 ### Search Google Reverse Image
 ```golang
@@ -531,8 +531,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_reverse_image_test.go)
-* see: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
+ * Source code: [test/example/example_search_google_reverse_image_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_reverse_image_test.go)
+* See: [serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
 
 ### Search Google Events
 ```golang
@@ -574,8 +574,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_events_test.go)
-* see: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
+ * Source code: [test/example/example_search_google_events_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_events_test.go)
+* See: [serpapi.com/google-events-api](https://serpapi.com/google-events-api)
 
 ### Search Google Local Services
 ```golang
@@ -618,8 +618,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_local_services_test.go)
-* see: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
+ * Source code: [test/example/example_search_google_local_services_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_local_services_test.go)
+* See: [serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
 
 ### Search Google Maps
 ```golang
@@ -663,8 +663,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_maps_test.go)
-* see: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
+ * Source code: [test/example/example_search_google_maps_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_maps_test.go)
+* See: [serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
 
 ### Search Google Jobs
 ```golang
@@ -706,8 +706,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_jobs_test.go)
-* see: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
+ * Source code: [test/example/example_search_google_jobs_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_jobs_test.go)
+* See: [serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
 
 ### Search Google Play
 ```golang
@@ -750,8 +750,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_play_test.go)
-* see: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
+ * Source code: [test/example/example_search_google_play_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_play_test.go)
+* See: [serpapi.com/google-play-api](https://serpapi.com/google-play-api)
 
 ### Search Google Images
 ```golang
@@ -794,8 +794,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_images_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_test.go)
-* see: [serpapi.com/images-results](https://serpapi.com/images-results)
+ * Source code: [test/example/example_search_google_images_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_test.go)
+* See: [serpapi.com/images-results](https://serpapi.com/images-results)
 
 ### Search Google Lens
 ```golang
@@ -837,8 +837,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_lens_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_lens_test.go)
-* see: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
+ * Source code: [test/example/example_search_google_lens_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_lens_test.go)
+* See: [serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
 
 ### Search Google Images Light
 ```golang
@@ -880,8 +880,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_images_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_light_test.go)
-* see: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
+ * Source code: [test/example/example_search_google_images_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_images_light_test.go)
+* See: [serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
 
 ### Search Google Hotels
 ```golang
@@ -929,8 +929,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_hotels_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_hotels_test.go)
-* see: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
+ * Source code: [test/example/example_search_google_hotels_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_hotels_test.go)
+* See: [serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
 
 ### Search Google Flights
 ```golang
@@ -977,8 +977,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_flights_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_flights_test.go)
-* see: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
+ * Source code: [test/example/example_search_google_flights_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_flights_test.go)
+* See: [serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
 
 ### Search Google Finance
 ```golang
@@ -1020,8 +1020,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_finance_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_finance_test.go)
-* see: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
+ * Source code: [test/example/example_search_google_finance_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_finance_test.go)
+* See: [serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
 
 ### Search Google News
 ```golang
@@ -1065,8 +1065,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_news_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_test.go)
-* see: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
+ * Source code: [test/example/example_search_google_news_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_test.go)
+* See: [serpapi.com/google-news-api](https://serpapi.com/google-news-api)
 
 ### Search Google News Light
 ```golang
@@ -1108,8 +1108,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_news_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_light_test.go)
-* see: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
+ * Source code: [test/example/example_search_google_news_light_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_news_light_test.go)
+* See: [serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
 
 ### Search Google Patents
 ```golang
@@ -1151,8 +1151,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_patents_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_patents_test.go)
-* see: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
+ * Source code: [test/example/example_search_google_patents_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_patents_test.go)
+* See: [serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
 
 ### Search Google Trends
 ```golang
@@ -1195,8 +1195,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_trends_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_trends_test.go)
-* see: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
+ * Source code: [test/example/example_search_google_trends_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_trends_test.go)
+* See: [serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
 
 ### Search Google Shopping
 ```golang
@@ -1238,8 +1238,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_shopping_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_shopping_test.go)
-* see: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
+ * Source code: [test/example/example_search_google_shopping_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_shopping_test.go)
+* See: [serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
 
 ### Search Google Immersive Product
 ```golang
@@ -1281,8 +1281,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_immersive_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_immersive_product_test.go)
-* see: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
+ * Source code: [test/example/example_search_google_immersive_product_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_immersive_product_test.go)
+* See: [serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
 
 ### Search Google Videos
 ```golang
@@ -1324,8 +1324,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_google_videos_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_videos_test.go)
-* see: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
+ * Source code: [test/example/example_search_google_videos_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_google_videos_test.go)
+* See: [serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
 
 ### Search Amazon
 ```golang
@@ -1367,8 +1367,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_amazon_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_amazon_test.go)
-* see: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
+ * Source code: [test/example/example_search_amazon_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_amazon_test.go)
+* See: [serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
 
 ### Search Baidu
 ```golang
@@ -1410,8 +1410,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_baidu_test.go)
-* see: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
+ * Source code: [test/example/example_search_baidu_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_baidu_test.go)
+* See: [serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
 
 ### Search Yahoo
 ```golang
@@ -1453,10 +1453,10 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yahoo_test.go)
-* see: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
+ * Source code: [test/example/example_search_yahoo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yahoo_test.go)
+* See: [serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
 
-### Search Youtube
+### Search YouTube
 ```golang
  import (	
   "github.com/serpapi/serpapi-golang" 
@@ -1496,8 +1496,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_youtube_test.go)
-* see: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
+ * Source code: [test/example/example_search_youtube_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_youtube_test.go)
+* See: [serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
 
 ### Search Walmart
 ```golang
@@ -1539,8 +1539,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_walmart_test.go)
-* see: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
+ * Source code: [test/example/example_search_walmart_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_walmart_test.go)
+* See: [serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
 
 ### Search eBay
 ```golang
@@ -1582,8 +1582,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_ebay_test.go)
-* see: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
+ * Source code: [test/example/example_search_ebay_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_ebay_test.go)
+* See: [serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
 
 ### Search Naver
 ```golang
@@ -1625,8 +1625,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_naver_test.go)
-* see: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
+ * Source code: [test/example/example_search_naver_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_naver_test.go)
+* See: [serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
 
 ### Search Home Depot
 ```golang
@@ -1668,8 +1668,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_home_depot_test.go)
-* see: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
+ * Source code: [test/example/example_search_home_depot_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_home_depot_test.go)
+* See: [serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
 
 ### Search Apple App Store
 ```golang
@@ -1711,8 +1711,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_apple_app_store_test.go)
-* see: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
+ * Source code: [test/example/example_search_apple_app_store_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_apple_app_store_test.go)
+* See: [serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
 
 ### Search DuckDuckGo
 ```golang
@@ -1754,8 +1754,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_duckduckgo_test.go)
-* see: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
+ * Source code: [test/example/example_search_duckduckgo_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_duckduckgo_test.go)
+* See: [serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
 
 ### Search Yandex
 ```golang
@@ -1797,8 +1797,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yandex_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yandex_test.go)
-* see: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
+ * Source code: [test/example/example_search_yandex_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yandex_test.go)
+* See: [serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
 
 ### Search Yelp
 ```golang
@@ -1841,8 +1841,8 @@ It prints your account information.
 
 ```
 
- * source code: [test/example/example_search_yelp_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yelp_test.go)
-* see: [serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
+ * Source code: [test/example/example_search_yelp_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/example/example_search_yelp_test.go)
+* See: [serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
 
 ## Advanced search API usage
 ### Highly scalable batching
@@ -1852,8 +1852,8 @@ Search API features non-blocking search using the option: `async=true`.
  - Blocking - async=false - many processes must be forked and synchronized to handle concurrent searches. This strategy is I/O intensive because each client would hold a network connection.
 
 Search API enables `async` search.
- - Non-blocking (`async=true`) : the development is more complex, but this allows handling many simultaneous connections.
- - Blocking (`async=false`) : it's easy to write the code but more compute-intensive when the parent process needs to hold many connections.
+ - Non-blocking (`async=true`): the development is more complex, but this allows handling many simultaneous connections.
+ - Blocking (`async=false`): it's easy to write the code, but more compute-intensive when the parent process needs to hold many connections.
 
 Here is an example of asynchronous searches using Go 
 ```golang
@@ -1867,8 +1867,8 @@ import (
 )
 
 /***
- * The code snippet aims to improve the efficiency of searching using the SerpApi client using `async` mode.
- * The request are non-blocking which allows batching a large amount of query, and wait before fetching the result back.
+ * The code snippet aims to improve the efficiency of searching using the SerpApi client in `async` mode.
+ * The requests are non-blocking, which allows batching a large number of queries and waiting before fetching the results back.
  *
  * **Process:**
  * 1. **Request Queue:** The company list is iterated over, and each company is queried using the SerpApi client. Requests
@@ -1978,7 +1978,7 @@ func main() {
  * source code: [demo/demo_async.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo_async.go)
 
 This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). 
-Each search takes a few seconds before completion by SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might be already available in the archive. If not, the `search_archive` method blocks until the search results are available. 
+Each search takes a few seconds to complete via the SerpApi service and the search engine. By the time the first element pops out of the queue. The search result might already be available in the archive. If not, the `search_archive` method blocks until the search results are available. 
 
 ### Pagination
 
@@ -2013,9 +2013,9 @@ for page := 1; page <= 3; page++ {
  * source code: [demo/demo.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo.go)
 
 ## Supported Go versions
-Go versions validated by Github Actions:
+Go versions validated by GitHub Actions:
  - 1.17+
- * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
+ * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
  * [2026-09-24] 1.3.0 Context-aware requests
@@ -2032,27 +2032,27 @@ Go versions validated by Github Actions:
 
 ## Developer guide
 ### Key goals
- - Brand centric instead of search engine based
+ - Brand-centric instead of search engine-based
    - No hard-coded logic per search engine
  - Simple HTTP client (lightweight, reduced dependency)
    - No magic default values
-   - Thread safe
+   - Thread-safe
  - Easy extension
  - Defensive code style (raise a custom exception)
  - TDD
  - Best API coding practice per platform
- - KiSS principles
+ - KISS principles
 
 ### Inspirations
 The source code and coding style of this project are inspired by Go.
 The Go programming language provides native recommendations for building excellent software.
 
 ### Code quality expectations
- - 0 lint offense: `make lint`
+ - 0 lint offenses: `make lint`
  - 100% tests passing: `make test`
  - Code coverage report: `make coverage`
 
-## Design : UML diagram
+## Design: UML diagram
 ### Class diagram
 ```mermaid
 classDiagram
@@ -2093,17 +2093,17 @@ The SerpApi.com service (backend)
  - executes a scalable search on `engine: "google"` using the search query: `q: "coffee"`.
  - parses the messy HTML responses from Google on the backend.
  - returns a standardized JSON response.
-The class serpapi.Client (client side / golang):
- - Format the request to SerpApi.com server.
- - Execute HTTP Get request.
- - Parse JSON into Go map using a standard JSON library.
+The class serpapi.Client (client-side / Golang):
+ - Formats the request to the SerpApi.com server.
+ - Executes an HTTP GET request.
+ - Parses JSON into a Go map using a standard JSON library.
 Et voila!
 
 ## Continuous integration
-We love "true open source" and "continuous integration", and Test Driven Development (TDD).
- We are using Go test to test [our infrastructure around the clock]) using Github Action to achieve the best QoS (Quality Of Service).
+We love "true open source" and "continuous integration", and Test-Driven Development (TDD).
+ We are using Go tests to test [our infrastructure around the clock]) using GitHub Actions to achieve the best QoS (Quality of Service).
 
-The directory test/ includes specification which serves the dual purposes of examples and functional tests.
+The directory test/ includes specification which serves the dual purpose of examples and functional tests.
 
 Set your secret API key in your shell before running a test.
 ```bash
