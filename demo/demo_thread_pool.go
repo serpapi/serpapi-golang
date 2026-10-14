@@ -23,7 +23,7 @@ import (
 func main() {
 	api_key := os.Getenv("SERPAPI_KEY")
 	if len(api_key) == 0 {
-		println("you must obtain an api_key from serpapi\n and set the environment variable API_KEY\n $ export API_KEY='secret api key'")
+		println("you must obtain an api_key from serpapi\n and set the environment variable SERPAPI_KEY\n $ export SERPAPI_KEY='secret api key'")
 		return
 	}
 
@@ -103,7 +103,7 @@ func main() {
 			"q":        query,
 			"location": "Austin, Texas, United States",
 			"hl":       "en",
-			"gl":       "us"
+			"gl":       "us",
 		}
 		fmt.Printf("Scheduled query for: %s\n", query)
 	}

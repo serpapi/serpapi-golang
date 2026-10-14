@@ -30,8 +30,10 @@ jobs:
             dep ensure
         fi
 
+    - name: Lint
+      run: make lint
+
     - name: Test
       run: make test
       env:
         API_KEY: ${{ secrets.API_KEY }}
-
