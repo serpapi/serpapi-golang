@@ -2047,10 +2047,9 @@ Go versions validated by Github Actions:
  * see: [Github Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
- * [2026-10-13] 1.3.1 Markdown output improvements
+ * [2026-09-24] 1.3.0 Context-aware requests
   - **Breaking:** `Markdown()` is removed, use `Md()` instead (`MarkdownContext()` is unchanged)
   - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
- * [2026-09-24] 1.3.0 Context-aware requests
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support
  * [2026-08-16] 1.2.0 Markdown output support

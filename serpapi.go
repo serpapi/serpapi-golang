@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	VERSION        = "1.3.1"
+	VERSION        = "1.3.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
