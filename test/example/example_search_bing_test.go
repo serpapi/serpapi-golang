@@ -12,10 +12,7 @@ func TestBing(t *testing.T) {
     return
   }
 
-  auth := map[string]string{
-    "api_key": *getApiKey(),
-  }
-  client := serpapi.NewClient(auth)
+  client := serpapi.NewClient(serpapi.NewSerpApiClientSetting(getApiKey()))
 
   parameter := map[string]string{
     "engine": "bing", 

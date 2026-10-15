@@ -117,13 +117,13 @@ func (client *SerpApiClient) HtmlContext(ctx context.Context, parameter map[stri
 	return client.decodeText(rsp.Body)
 }
 
-// Markdown returns the search result as markdown optimized for LLMs and AI agents
-func (client *SerpApiClient) Markdown(parameter map[string]string) (*string, error) {
-	return client.MarkdownContext(context.Background(), parameter)
+// Md returns the search result as markdown optimized for LLMs and AI agents
+func (client *SerpApiClient) Md(parameter map[string]string) (*string, error) {
+	return client.MdContext(context.Background(), parameter)
 }
 
-// MarkdownContext returns markdown search results and supports cancellation.
-func (client *SerpApiClient) MarkdownContext(ctx context.Context, parameter map[string]string) (*string, error) {
+// MdContext returns markdown search results and supports cancellation.
+func (client *SerpApiClient) MdContext(ctx context.Context, parameter map[string]string) (*string, error) {
 	rsp, err := client.execute(ctx, "/search", "md", parameter)
 	if err != nil {
 		return nil, err
@@ -179,6 +179,21 @@ func (client *SerpApiClient) SearchArchiveContext(ctx context.Context, id string
 	}
 	defer rsp.Body.Close()
 	return client.decodeJSON(rsp.Body)
+}
+
+// SearchArchiveMd retrieves previous search results formatted as Markdown
+func (client *SerpApiClient) SearchArchiveMd(id string) (*string, error) {
+	return client.SearchArchiveMdContext(context.Background(), id)
+}
+
+// SearchArchiveMdContext retrieves a previous search result as Markdown and supports cancellation.
+func (client *SerpApiClient) SearchArchiveMdContext(ctx context.Context, id string) (*string, error) {
+	rsp, err := client.execute(ctx, "/searches/"+url.PathEscape(id)+".md", "md", map[string]string{})
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeText(rsp.Body)
 }
 
 // decodeJSON decodes response body to a map
@@ -239,7 +254,7 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 		query.Add("async", "true")
 	}
 	query.Add("source", "go:"+VERSION)
-	query.Add("output", output)
+	query.Set("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()
 	// errors expose the URL, so never include the secret API key

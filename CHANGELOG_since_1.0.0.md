@@ -5,13 +5,17 @@ This document summarizes all changes made to the SerpApi Go library since tag `1
 
 ## v1.3.0 - 2026-09-24
 
-- Added `Context` variants (`SearchContext`, `HtmlContext`, `MarkdownContext`, `LocationContext`, `AccountContext`, `SearchArchiveContext`) for cancellation and deadlines. Existing methods are unchanged wrappers.
+- Added `Context` variants (`SearchContext`, `HtmlContext`, `MdContext`, `LocationContext`, `AccountContext`, `SearchArchiveContext`, `SearchArchiveMdContext`) for cancellation and deadlines. Existing methods are unchanged wrappers.
+- Added `SearchArchiveMd` to retrieve archived results as Markdown.
 - Added `*serpapi.HTTPError` (status code, URL, body) for non-2xx responses.
 - Security: the API key is redacted from URLs in `HTTPError` and network errors.
 - HTTP transport now starts from Go defaults: honors `HTTP_PROXY`/`HTTPS_PROXY`, enables HTTP/2, defaults `KeepAlive` to 60s, applies `MaxIdleConnection` per host.
 - Search archive IDs are escaped in request paths; response bodies are always closed.
 - Pagination example in README "Simple Usage" and `demo/demo.go` (follows `serpapi_pagination.next`).
 - Examples under `test/example/` aligned with serpapi-ruby: added `google_ai_mode` and `google_light_search`, removed `google_ai_overview`. Added a markdown test and offline request-construction tests; CI runs `go vet` and library tests.
+
+**Breaking changes:**
+- `Markdown()` is renamed to `Md()`.
 
 **Behavior changes:**
 - Non-2xx error messages are now `serpapi request failed: <status>: <body>` instead of the JSON `error` value.

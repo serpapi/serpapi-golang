@@ -1,7 +1,11 @@
 package serpapi
 
 import (
+	"context"
+	"errors"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/serpapi/serpapi-golang"
 )
@@ -73,5 +77,50 @@ func TestSearchArchive(t *testing.T) {
 	if !ok || searchIDArchive != searchID {
 		t.Errorf("search_metadata.id mismatch: got %v, expected %v", searchIDArchive, searchID)
 	}
+
+	markdown, err := client.SearchArchiveMd(searchID)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !strings.Contains(*markdown, "## Organic Results") {
+		t.Error("Markdown search archive does not contain organic results")
+	}
 	// print search results from search archive
+}
+
+func TestSearchArchiveMdContext(t *testing.T) {
+	if shoulSkip() {
+		t.Skip("SERPAPI_KEY required")
+		return
+	}
+
+	client := serpapi.NewClient(serpapi.NewSerpApiClientSetting(getApiKey()))
+	rsp, err := client.Search(map[string]string{
+		"q":        "Coffee",
+		"location": "Portland"})
+	if err != nil {
+		t.Fatal("unexpected error", err)
+	}
+	searchID, ok := rsp["search_metadata"].(map[string]interface{})["id"].(string)
+	if !ok || len(searchID) == 0 {
+		t.Fatal("search_metadata.id is missing or invalid")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	markdown, err := client.SearchArchiveMdContext(ctx, searchID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(*markdown, "## Organic Results") {
+		t.Error("Markdown search archive does not contain organic results")
+	}
+
+	// a canceled context must abort the real request
+	canceled, stop := context.WithCancel(context.Background())
+	stop()
+	if _, err := client.SearchArchiveMdContext(canceled, searchID); !errors.Is(err, context.Canceled) {
+		t.Errorf("expected context.Canceled, got %v", err)
+	}
 }

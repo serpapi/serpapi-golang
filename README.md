@@ -57,6 +57,28 @@ for page := 1; page <= 3; page++ {
 This example runs a search for "coffee" on Google and walks through the first 3 pages of results, each returned as a Go map.
 See [Pagination](#pagination) for details and the [playground](https://serpapi.com/playground) to generate your own code.
 
+### Response formats
+
+Use `Search` for structured JSON results decoded into a Go map:
+
+```golang
+results, err := client.Search(parameter)
+```
+
+Use `Md` for a token-efficient Markdown string optimized for LLMs and AI agents:
+
+```golang
+markdown, err := client.Md(parameter)
+```
+
+Use `Html` when you need the raw search-engine response:
+
+```golang
+rawHTML, err := client.Html(parameter)
+```
+
+Learn more about [SerpApi Markdown output](https://serpapi.com/markdown-output).
+
 ### Context-aware requests
 
 The existing methods remain available and continue to use the client's configured
@@ -77,8 +99,8 @@ if err != nil {
 fmt.Println(results)
 ```
 
-Context-aware variants are available for `Search`, `Html`, `Markdown`, `Location`,
-`Account`, and `SearchArchive`. The original methods are backward-compatible
+Context-aware variants are available for `Search`, `Html`, `Md`, `Location`,
+`Account`, `SearchArchive`, and `SearchArchiveMd`. The original methods are backward-compatible
 convenience wrappers.
 
 ### HTTP errors
@@ -132,6 +154,13 @@ func main() {
   }
   fmt.Println(rsp)
 
+  // token-efficient Markdown as a string
+  markdown, err := client.Md(parameter)
+  if err != nil {
+    panic(err)
+  }
+  fmt.Println(*markdown)
+
   // raw search engine HTML as a String
   // serpapi.com acts as a proxy to provide high throughput, no search limit, and more.
   raw_html, err := client.Html(parameter)
@@ -139,14 +168,6 @@ func main() {
     panic(err)
   }
   fmt.Println(raw_html)
-
-  // search results as markdown optimized for LLMs and AI agents
-  // serpapi.com converts HTML -> Markdown
-  markdown, err := client.Markdown(parameter)
-  if err != nil {
-    panic(err)
-  }
-  fmt.Println(markdown)
 }
 ```
 
@@ -161,7 +182,7 @@ More hands-on examples are available below.
 
 ### Markdown API
 
-`Markdown` returns the search results as markdown instead of JSON. The format is
+`Md` returns the search results as markdown instead of JSON. The format is
 optimized for LLMs and AI agents: it carries most of the information found in the
 JSON response, but is far more token efficient thanks to tables, markdown links
 and YAML frontmatter.
@@ -190,7 +211,7 @@ parameters as `Search` and `Html`.
 		"location": "Portland"}
 
 	// Perform the search and get the markdown response
-	data, err := client.Markdown(parameter)
+	data, err := client.Md(parameter)
 	if err != nil {
 		fmt.Println("err must be nil")
 		return
@@ -258,7 +279,15 @@ if err != nil {
 fmt.Println(searchArchive["search_metadata"])
 ```
 
-This code prints the search results from the archive. :)
+This code prints the JSON search results from the archive. Archived results are also available as Markdown:
+
+```golang
+markdown, err := client.SearchArchiveMd(searchID)
+if err != nil {
+  panic(err)
+}
+fmt.Println(*markdown)
+```
 
 ### Account API
 ```golang
@@ -2019,6 +2048,8 @@ Go versions validated by GitHub Actions:
 
 ## Changelog
  * [2026-09-24] 1.3.0 Context-aware requests
+  - **Breaking:** `Markdown()` is renamed to `Md()`
+  - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support
  * [2026-08-16] 1.2.0 Markdown output support
@@ -2063,10 +2094,11 @@ classDiagram
     api_key String
     params Map
     search() Map
+    md() String
     html() String
-    markdown() String
     location() String
     search_archive() Map
+    search_archive_md() String
     account() Map
   }
   class nethttp["net/http"]

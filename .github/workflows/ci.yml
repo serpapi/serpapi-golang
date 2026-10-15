@@ -36,4 +36,4 @@ jobs:
     - name: Test
       run: make test
       env:
-        API_KEY: ${{ secrets.API_KEY }}
+        SERPAPI_KEY: ${{ secrets.API_KEY }}
