@@ -2,11 +2,13 @@ package serpapi
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,7 +17,7 @@ import (
 )
 
 const (
-	VERSION        = "1.1.0"
+	VERSION        = "1.3.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 )
@@ -35,8 +37,24 @@ type SerpApiClientSetting struct {
 	Engine              string            // Search engine to use [default: "google"]
 	Parameter           map[string]string // Additional default parameters for the search
 	MaxIdleConnection   int               // Maximum number of idle connections to keep
-	KeepAlive           time.Duration     // Time between keep-alive probes (default: 60 seconds)
+	KeepAlive           time.Duration     // Time between keep-alive probes
 	TLSHandshakeTimeout time.Duration     // Timeout for TLS handshake (default: 10 seconds)
+}
+
+// HTTPError describes a non-successful response from the SerpApi service.
+type HTTPError struct {
+	StatusCode int
+	Status     string
+	URL        string
+	Body       string
+}
+
+// Error returns a human-readable description of the HTTP failure.
+func (err *HTTPError) Error() string {
+	if err.Body == "" {
+		return fmt.Sprintf("serpapi request failed: %s", err.Status)
+	}
+	return fmt.Sprintf("serpapi request failed: %s: %s", err.Status, err.Body)
 }
 
 // NewSerpApiClientSetting initializes a new SerpApiClientSetting with default values
@@ -48,16 +66,23 @@ func NewSerpApiClientSetting(serpApiKey string) SerpApiClientSetting {
 		Parameter:           make(map[string]string),
 		SerpApiKey:          serpApiKey,
 		Engine:              "google",         // Default search engine
+		KeepAlive:           60 * time.Second, // Default TCP keep-alive interval
 		TLSHandshakeTimeout: 10 * time.Second, // Default TLS handshake timeout
 	}
 }
 
 // NewClient initializes a new SerpApiClient client
 func NewClient(setting SerpApiClientSetting) SerpApiClient {
-	transport := &http.Transport{
-		TLSHandshakeTimeout: setting.TLSHandshakeTimeout, // Adjust as needed for HTTPS
-		DisableKeepAlives:   !setting.Persistent,         // Keep-alives are enabled by default in Go >=1.5
-		MaxIdleConns:        setting.MaxIdleConnection,   // Set maximum idle connections
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSHandshakeTimeout = setting.TLSHandshakeTimeout
+	transport.DisableKeepAlives = !setting.Persistent
+	transport.MaxIdleConns = setting.MaxIdleConnection
+	transport.MaxIdleConnsPerHost = setting.MaxIdleConnection
+	if setting.KeepAlive > 0 {
+		transport.DialContext = (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: setting.KeepAlive,
+		}).DialContext
 	}
 	httpSearch := &http.Client{
 		Timeout:   setting.Timeout, // Use the timeout from the setting
@@ -68,7 +93,12 @@ func NewClient(setting SerpApiClientSetting) SerpApiClient {
 
 // Search returns search result as a map
 func (client *SerpApiClient) Search(parameter map[string]string) (map[string]interface{}, error) {
-	rsp, err := client.execute("/search", "json", parameter)
+	return client.SearchContext(context.Background(), parameter)
+}
+
+// SearchContext returns search results as a map and supports cancellation.
+func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[string]string) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/search", "json", parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +114,7 @@ func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interfac
 	if err != nil {
 		return nil, err
 	}
+	defer rsp.Body.Close()
 	return client.decodeJSON(rsp.Body)
 }
 
@@ -139,21 +170,46 @@ func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Respon
 
 // Html returns raw HTML search result
 func (client *SerpApiClient) Html(parameter map[string]string) (*string, error) {
-	rsp, err := client.execute("/search", "html", parameter)
+	return client.HtmlContext(context.Background(), parameter)
+}
+
+// HtmlContext returns raw HTML search results and supports cancellation.
+func (client *SerpApiClient) HtmlContext(ctx context.Context, parameter map[string]string) (*string, error) {
+	rsp, err := client.execute(ctx, "/search", "html", parameter)
 	if err != nil {
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	return client.decodeHTML(rsp.Body)
+	return client.decodeText(rsp.Body)
+}
+
+// Md returns the search result as markdown optimized for LLMs and AI agents
+func (client *SerpApiClient) Md(parameter map[string]string) (*string, error) {
+	return client.MdContext(context.Background(), parameter)
+}
+
+// MdContext returns markdown search results and supports cancellation.
+func (client *SerpApiClient) MdContext(ctx context.Context, parameter map[string]string) (*string, error) {
+	rsp, err := client.execute(ctx, "/search", "md", parameter)
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeText(rsp.Body)
 }
 
 // Location returns standardized location data
 func (client *SerpApiClient) Location(location string, limit int) ([]interface{}, error) {
+	return client.LocationContext(context.Background(), location, limit)
+}
+
+// LocationContext returns standardized location data and supports cancellation.
+func (client *SerpApiClient) LocationContext(ctx context.Context, location string, limit int) ([]interface{}, error) {
 	parameter := map[string]string{
 		"q":     location,
 		"limit": fmt.Sprint(limit),
 	}
-	rsp, err := client.execute("/locations.json", "json", parameter)
+	rsp, err := client.execute(ctx, "/locations.json", "json", parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +219,12 @@ func (client *SerpApiClient) Location(location string, limit int) ([]interface{}
 
 // Account returns account information
 func (client *SerpApiClient) Account() (map[string]interface{}, error) {
-	rsp, err := client.execute("/account", "json", map[string]string{})
+	return client.AccountContext(context.Background())
+}
+
+// AccountContext returns account information and supports cancellation.
+func (client *SerpApiClient) AccountContext(ctx context.Context) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/account", "json", map[string]string{})
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +234,12 @@ func (client *SerpApiClient) Account() (map[string]interface{}, error) {
 
 // SearchArchive retrieves previous search results from the archive
 func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, error) {
-	rsp, err := client.execute("/searches/"+id+".json", "json", map[string]string{})
+	return client.SearchArchiveContext(context.Background(), id)
+}
+
+// SearchArchiveContext retrieves a previous search result and supports cancellation.
+func (client *SerpApiClient) SearchArchiveContext(ctx context.Context, id string) (map[string]interface{}, error) {
+	rsp, err := client.execute(ctx, "/searches/"+url.PathEscape(id)+".json", "json", map[string]string{})
 	if err != nil {
 		return nil, err
 	}
@@ -181,9 +247,23 @@ func (client *SerpApiClient) SearchArchive(id string) (map[string]interface{}, e
 	return client.decodeJSON(rsp.Body)
 }
 
+// SearchArchiveMd retrieves previous search results formatted as Markdown
+func (client *SerpApiClient) SearchArchiveMd(id string) (*string, error) {
+	return client.SearchArchiveMdContext(context.Background(), id)
+}
+
+// SearchArchiveMdContext retrieves a previous search result as Markdown and supports cancellation.
+func (client *SerpApiClient) SearchArchiveMdContext(ctx context.Context, id string) (*string, error) {
+	rsp, err := client.execute(ctx, "/searches/"+url.PathEscape(id)+".md", "md", map[string]string{})
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeText(rsp.Body)
+}
+
 // decodeJSON decodes response body to a map
-func (client *SerpApiClient) decodeJSON(body io.ReadCloser) (map[string]interface{}, error) {
-	defer body.Close()
+func (client *SerpApiClient) decodeJSON(body io.Reader) (map[string]interface{}, error) {
 	decoder := json.NewDecoder(body)
 	var rsp map[string]interface{}
 	if err := decoder.Decode(&rsp); err != nil {
@@ -196,8 +276,7 @@ func (client *SerpApiClient) decodeJSON(body io.ReadCloser) (map[string]interfac
 }
 
 // decodeJSONArray decodes response body to a slice
-func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{}, error) {
-	defer body.Close()
+func (client *SerpApiClient) decodeJSONArray(body io.Reader) ([]interface{}, error) {
 	decoder := json.NewDecoder(body)
 	var rsp []interface{}
 	if err := decoder.Decode(&rsp); err != nil {
@@ -206,9 +285,8 @@ func (client *SerpApiClient) decodeJSONArray(body io.ReadCloser) ([]interface{},
 	return rsp, nil
 }
 
-// decodeHTML decodes response body to an HTML string
-func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
-	defer body.Close()
+// decodeText decodes response body to a raw string (HTML or markdown)
+func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	buffer, err := io.ReadAll(body)
 	if err != nil {
 		return nil, err
@@ -218,7 +296,7 @@ func (client *SerpApiClient) decodeHTML(body io.ReadCloser) (*string, error) {
 }
 
 // execute sends an HTTP GET request and returns the response
-func (client *SerpApiClient) execute(path string, output string, parameter map[string]string) (*http.Response, error) {
+func (client *SerpApiClient) execute(ctx context.Context, path string, output string, parameter map[string]string) (*http.Response, error) {
 	query := url.Values{}
 	for name, value := range parameter {
 		query.Add(name, value)
@@ -242,12 +320,40 @@ func (client *SerpApiClient) execute(path string, output string, parameter map[s
 		query.Add("async", "true")
 	}
 	query.Add("source", "go:"+VERSION)
-	query.Add("output", output)
+	query.Set("output", output)
 
 	endpoint := BaseURL + path + "?" + query.Encode()
-	rsp, err := client.HttpSearch.Get(endpoint)
+	// errors expose the URL, so never include the secret API key
+	query.Del("api_key")
+	redactedEndpoint := BaseURL + path + "?" + query.Encode()
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, err
+	}
+	rsp, err := client.HttpSearch.Do(request)
+	if err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			urlErr.URL = redactedEndpoint
+		}
+		return nil, err
+	}
+	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
+		body, readErr := io.ReadAll(rsp.Body)
+		closeErr := rsp.Body.Close()
+		if readErr != nil {
+			return nil, readErr
+		}
+		if closeErr != nil {
+			return nil, closeErr
+		}
+		return nil, &HTTPError{
+			StatusCode: rsp.StatusCode,
+			Status:     rsp.Status,
+			URL:        redactedEndpoint,
+			Body:       string(body),
+		}
 	}
 	return rsp, nil
 }
