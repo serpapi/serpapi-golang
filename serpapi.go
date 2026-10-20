@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -89,6 +90,7 @@ func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interfac
 // executeImageUpload sends a multipart POST request to the Image API.
 func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Response, error) {
 	var reader io.Reader
+	filename := "image"
 	switch value := image.(type) {
 	case string:
 		file, err := os.Open(value)
@@ -97,15 +99,19 @@ func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Respon
 		}
 		defer file.Close()
 		reader = file
+		filename = filepath.Base(value)
 	case io.Reader:
 		reader = value
+		if named, ok := value.(interface{ Name() string }); ok {
+			filename = filepath.Base(named.Name())
+		}
 	default:
 		return nil, errors.New("image must be a file path or io.Reader")
 	}
 
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
-	part, err := writer.CreateFormFile("image", "image")
+	part, err := writer.CreateFormFile("image", filename)
 	if err != nil {
 		return nil, err
 	}

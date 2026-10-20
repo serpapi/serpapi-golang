@@ -29,9 +29,19 @@ func TestUploadImage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for name, image := range map[string]interface{}{
-		"path":   imagePath,
-		"reader": strings.NewReader("fake-image-data"),
+	imageFile, err := os.Open(imagePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer imageFile.Close()
+
+	for name, test := range map[string]struct {
+		image    interface{}
+		filename string
+	}{
+		"path":   {imagePath, "image.png"},
+		"file":   {imageFile, "image.png"},
+		"reader": {strings.NewReader("fake-image-data"), "image"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			client := imageClient(func(request *http.Request) (*http.Response, error) {
@@ -44,11 +54,14 @@ func TestUploadImage(t *testing.T) {
 				if value := request.FormValue("api_key"); value != "client-api-key" {
 					t.Errorf("api_key = %q, want client-api-key", value)
 				}
-				file, _, err := request.FormFile("image")
+				file, header, err := request.FormFile("image")
 				if err != nil {
 					t.Fatal(err)
 				}
 				defer file.Close()
+				if header.Filename != test.filename {
+					t.Errorf("filename = %q, want %q", header.Filename, test.filename)
+				}
 				contents, err := io.ReadAll(file)
 				if err != nil {
 					t.Fatal(err)
@@ -62,7 +75,7 @@ func TestUploadImage(t *testing.T) {
 				}, nil
 			})
 
-			result, err := client.UploadImage(image)
+			result, err := client.UploadImage(test.image)
 			if err != nil {
 				t.Fatal(err)
 			}
