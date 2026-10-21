@@ -110,7 +110,12 @@ func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[st
 // that can be used by search engines such as Google Lens. image may be a file
 // path or an io.Reader.
 func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interface{}, error) {
-	rsp, err := client.executeImageUpload(image)
+	return client.UploadImageContext(context.Background(), image)
+}
+
+// UploadImageContext uploads an image like UploadImage and supports cancellation.
+func (client *SerpApiClient) UploadImageContext(ctx context.Context, image interface{}) (map[string]interface{}, error) {
+	rsp, err := client.executeImageUpload(ctx, image)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +124,7 @@ func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interfac
 }
 
 // executeImageUpload sends a multipart POST request to the Image API.
-func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Response, error) {
+func (client *SerpApiClient) executeImageUpload(ctx context.Context, image interface{}) (*http.Response, error) {
 	var reader io.Reader
 	filename := "image"
 	switch value := image.(type) {
@@ -159,13 +164,19 @@ func (client *SerpApiClient) executeImageUpload(image interface{}) (*http.Respon
 		return nil, err
 	}
 
-	request, err := http.NewRequest(http.MethodPost, BaseURL+"/image", &body)
+	// The API key is in the body, so the endpoint is safe to show in errors.
+	endpoint := BaseURL + "/image"
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, &body)
 	if err != nil {
 		return nil, err
 	}
 	request.Header.Set("Content-Type", writer.FormDataContentType())
 
-	return client.HttpSearch.Do(request)
+	rsp, err := client.HttpSearch.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	return checkStatus(rsp, endpoint)
 }
 
 // Html returns raw HTML search result
@@ -339,21 +350,27 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 		}
 		return nil, err
 	}
-	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
-		body, readErr := io.ReadAll(rsp.Body)
-		closeErr := rsp.Body.Close()
-		if readErr != nil {
-			return nil, readErr
-		}
-		if closeErr != nil {
-			return nil, closeErr
-		}
-		return nil, &HTTPError{
-			StatusCode: rsp.StatusCode,
-			Status:     rsp.Status,
-			URL:        redactedEndpoint,
-			Body:       string(body),
-		}
+	return checkStatus(rsp, redactedEndpoint)
+}
+
+// checkStatus returns rsp if it is successful, otherwise it closes the body
+// and returns an *HTTPError for endpoint, which must not contain the API key.
+func checkStatus(rsp *http.Response, endpoint string) (*http.Response, error) {
+	if rsp.StatusCode >= http.StatusOK && rsp.StatusCode < http.StatusMultipleChoices {
+		return rsp, nil
 	}
-	return rsp, nil
+	body, readErr := io.ReadAll(rsp.Body)
+	closeErr := rsp.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	return nil, &HTTPError{
+		StatusCode: rsp.StatusCode,
+		Status:     rsp.Status,
+		URL:        endpoint,
+		Body:       string(body),
+	}
 }

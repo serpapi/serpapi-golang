@@ -1,6 +1,8 @@
 package serpapi
 
 import (
+	"context"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -95,5 +97,45 @@ func TestUploadImageRejectsUnsupportedInput(t *testing.T) {
 	_, err := client.UploadImage(42)
 	if err == nil || err.Error() != "image must be a file path or io.Reader" {
 		t.Errorf("error = %v", err)
+	}
+}
+
+func TestUploadImageReturnsHTTPError(t *testing.T) {
+	const body = `{"error":"Invalid API key."}`
+	client := imageClient(func(request *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusUnauthorized,
+			Status:     "401 Unauthorized",
+			Body:       io.NopCloser(strings.NewReader(body)),
+		}, nil
+	})
+
+	_, err := client.UploadImage(strings.NewReader("fake-image-data"))
+	var httpErr *serpapi.HTTPError
+	if !errors.As(err, &httpErr) {
+		t.Fatalf("expected *serpapi.HTTPError, got %v", err)
+	}
+	if httpErr.StatusCode != http.StatusUnauthorized || httpErr.Body != body {
+		t.Errorf("HTTPError = %d %q", httpErr.StatusCode, httpErr.Body)
+	}
+	if httpErr.URL != "https://serpapi.com/image" {
+		t.Errorf("URL = %q, want https://serpapi.com/image", httpErr.URL)
+	}
+	if strings.Contains(err.Error(), "client-api-key") {
+		t.Errorf("error leaks the API key: %v", err)
+	}
+}
+
+func TestUploadImageContextCancellation(t *testing.T) {
+	client := imageClient(func(request *http.Request) (*http.Response, error) {
+		<-request.Context().Done()
+		return nil, request.Context().Err()
+	})
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := client.UploadImageContext(ctx, strings.NewReader("fake-image-data"))
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled, got %v", err)
 	}
 }
