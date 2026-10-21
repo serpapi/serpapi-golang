@@ -100,7 +100,7 @@ fmt.Println(results)
 ```
 
 Context-aware variants are available for `Search`, `Html`, `Md`, `Location`,
-`Account`, `SearchArchive`, and `SearchArchiveMd`. The original methods are backward-compatible
+`Account`, `SearchArchive`, `SearchArchiveMd`, and `UploadImage`. The original methods are backward-compatible
 convenience wrappers.
 
 ### HTTP errors
@@ -226,6 +226,29 @@ parameters as `Search` and `Html`.
  * source code: [test/markdown_test.go](https://github.com/serpapi/serpapi-golang/blob/master/test/markdown_test.go)
 
  * [Markdown output documentation](https://serpapi.com/blog/turning-search-results-into-markdown-for-llms/)
+
+### Image API
+
+Upload JPG/JPEG, PNG, or WebP image (up to 500 KB) to use with supported search engines.
+
+```golang
+setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>")
+client := serpapi.NewClient(setting)
+
+upload, err := client.UploadImage("/path/to/image.png")
+if err != nil {
+  panic(err)
+}
+
+results, err := client.Search(map[string]string{
+  "engine":   "google_lens",
+  "image_id": upload["image_id"].(string),
+})
+```
+
+`UploadImage` also accepts an `io.Reader`. Reader ownership remains with the caller.
+
+Uploaded image IDs expire after 10 minutes. See the [Image API documentation](https://serpapi.com/image-api).
 
 ### Location API
 

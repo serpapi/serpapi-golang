@@ -1,14 +1,18 @@
 package serpapi
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -100,6 +104,79 @@ func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[st
 	}
 	defer rsp.Body.Close()
 	return client.decodeJSON(rsp.Body)
+}
+
+// UploadImage uploads an image to SerpApi's Image API and returns an image_id
+// that can be used by search engines such as Google Lens. image may be a file
+// path or an io.Reader.
+func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interface{}, error) {
+	return client.UploadImageContext(context.Background(), image)
+}
+
+// UploadImageContext uploads an image like UploadImage and supports cancellation.
+func (client *SerpApiClient) UploadImageContext(ctx context.Context, image interface{}) (map[string]interface{}, error) {
+	rsp, err := client.executeImageUpload(ctx, image)
+	if err != nil {
+		return nil, err
+	}
+	defer rsp.Body.Close()
+	return client.decodeJSON(rsp.Body)
+}
+
+// executeImageUpload sends a multipart POST request to the Image API.
+func (client *SerpApiClient) executeImageUpload(ctx context.Context, image interface{}) (*http.Response, error) {
+	var reader io.Reader
+	filename := "image"
+	switch value := image.(type) {
+	case string:
+		file, err := os.Open(value)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		reader = file
+		filename = filepath.Base(value)
+	case io.Reader:
+		reader = value
+		if named, ok := value.(interface{ Name() string }); ok {
+			filename = filepath.Base(named.Name())
+		}
+	default:
+		return nil, errors.New("image must be a file path or io.Reader")
+	}
+
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	part, err := writer.CreateFormFile("image", filename)
+	if err != nil {
+		return nil, err
+	}
+	if _, err = io.Copy(part, reader); err != nil {
+		return nil, err
+	}
+
+	if client.Setting.SerpApiKey != "" {
+		if err = writer.WriteField("api_key", client.Setting.SerpApiKey); err != nil {
+			return nil, err
+		}
+	}
+	if err = writer.Close(); err != nil {
+		return nil, err
+	}
+
+	// The API key is in the body, so the endpoint is safe to show in errors.
+	endpoint := BaseURL + "/image"
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, &body)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+
+	rsp, err := client.HttpSearch.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	return checkStatus(rsp, endpoint)
 }
 
 // Html returns raw HTML search result
@@ -273,21 +350,27 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 		}
 		return nil, err
 	}
-	if rsp.StatusCode < http.StatusOK || rsp.StatusCode >= http.StatusMultipleChoices {
-		body, readErr := io.ReadAll(rsp.Body)
-		closeErr := rsp.Body.Close()
-		if readErr != nil {
-			return nil, readErr
-		}
-		if closeErr != nil {
-			return nil, closeErr
-		}
-		return nil, &HTTPError{
-			StatusCode: rsp.StatusCode,
-			Status:     rsp.Status,
-			URL:        redactedEndpoint,
-			Body:       string(body),
-		}
+	return checkStatus(rsp, redactedEndpoint)
+}
+
+// checkStatus returns rsp if it is successful, otherwise it closes the body
+// and returns an *HTTPError for endpoint, which must not contain the API key.
+func checkStatus(rsp *http.Response, endpoint string) (*http.Response, error) {
+	if rsp.StatusCode >= http.StatusOK && rsp.StatusCode < http.StatusMultipleChoices {
+		return rsp, nil
 	}
-	return rsp, nil
+	body, readErr := io.ReadAll(rsp.Body)
+	closeErr := rsp.Body.Close()
+	if readErr != nil {
+		return nil, readErr
+	}
+	if closeErr != nil {
+		return nil, closeErr
+	}
+	return nil, &HTTPError{
+		StatusCode: rsp.StatusCode,
+		Status:     rsp.Status,
+		URL:        endpoint,
+		Body:       string(body),
+	}
 }

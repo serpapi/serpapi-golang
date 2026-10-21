@@ -3,6 +3,10 @@
 ## Overview
 This document summarizes all changes made to the SerpApi Go library since tag `1.0.0` was created.
 
+## Unreleased
+
+- Added `UploadImage` and `UploadImageContext` for the [Image API](https://serpapi.com/image-api). They take a file path or an `io.Reader`, keep the original filename, and return the `image_id` to pass to engines such as `google_lens`. Non-2xx responses return `*serpapi.HTTPError`, like every other method.
+
 ## v1.3.0 - 2026-09-24
 
 - Added `Context` variants (`SearchContext`, `HtmlContext`, `MdContext`, `LocationContext`, `AccountContext`, `SearchArchiveContext`, `SearchArchiveMdContext`) for cancellation and deadlines. Existing methods are unchanged wrappers.
