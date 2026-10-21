@@ -100,7 +100,7 @@ fmt.Println(results)
 ```
 
 Context-aware variants are available for `Search`, `Html`, `Md`, `Location`,
-`Account`, `SearchArchive`, and `SearchArchiveMd`. The original methods are backward-compatible
+`Account`, `SearchArchive`, `SearchArchiveMd`, and `UploadImage`. The original methods are backward-compatible
 convenience wrappers.
 
 ### HTTP errors
