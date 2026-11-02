@@ -98,6 +98,11 @@ func TestUploadImageRejectsUnsupportedInput(t *testing.T) {
 	if err == nil || err.Error() != "image must be a file path or io.Reader" {
 		t.Errorf("error = %v", err)
 	}
+
+	_, err = client.UploadImage(t.TempDir() + string(os.PathSeparator) + "missing.png")
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("expected os.ErrNotExist, got %v", err)
+	}
 }
 
 func TestUploadImageReturnsHTTPError(t *testing.T) {
