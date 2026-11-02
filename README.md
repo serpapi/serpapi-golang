@@ -2070,19 +2070,23 @@ Go versions validated by GitHub Actions:
  * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
- * [2026-09-24] 1.3.0 Context-aware requests
+- [2026-11-01] 1.4.0 Image API support
+  - Added `UploadImage()` and `UploadImageContext()` for the [Image API](https://serpapi.com/image-api), returning the `image_id` to use with engines such as `google_lens`
+  - Accepts a file path or an `io.Reader` and keeps the original filename
+  - Non-2xx responses return `*serpapi.HTTPError`
+- [2026-09-24] 1.3.0 Context-aware requests
   - **Breaking:** `Markdown()` is renamed to `Md()`
   - Added `SearchArchiveMd()` and `SearchArchiveMdContext()` for archived Markdown results
   - Added backward-compatible `Context` variants for all API methods
   - Added request cancellation and deadline support
- * [2026-08-16] 1.2.0 Markdown output support
+- [2026-08-16] 1.2.0 Markdown output support
   - New `Markdown()` method returning `output=md` results optimized for LLMs and AI agents
- * [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
+- [2026-01-26] 1.1.0 Asynchronous & Persistent Mode Support
   - Major features (async/persistent mode, API key handling, client configuration)
   - New test examples
   - Documentation and code quality improvements
   - Build system and CI/CD enhancements
- * [2024-10-01] 1.0.0 Full API support
+- [2024-10-01] 1.0.0 Full API support
 
 ## Developer guide
 ### Key goals
