@@ -259,8 +259,12 @@ upload, err := client.UploadImageReader(bytes.NewReader(png), "photo.png", map[s
 })
 ```
 
+The API key is resolved like `Search`: the call parameter, then `setting.Parameter["api_key"]`,
+then `setting.SerpApiKey`.
+
 Reader ownership remains with the caller. An image larger than `serpapi.MaxImageSize` (500 KB) is
-rejected before it is sent, with an error wrapping `serpapi.ErrImageTooLarge`:
+rejected before it is sent, with an error wrapping `serpapi.ErrImageTooLarge`. The reader is then
+left partly consumed, so rewind or reopen it before reusing it:
 
 ```golang
 if errors.Is(err, serpapi.ErrImageTooLarge) {
@@ -2091,8 +2095,10 @@ Go versions validated by GitHub Actions:
  * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
-- Unreleased
+- Unreleased (next release: 1.5.0)
   - Added `UploadImageReader()` and `UploadImageReaderContext()` to upload a reader under a chosen filename, with an optional per-call `api_key`
+  - Added `serpapi.MaxImageSize` and `serpapi.ErrImageTooLarge`
+  - Image uploads resolve the API key like `Search`, including `setting.Parameter["api_key"]`
   - Image uploads now send `source=go:<version>` like every other request
   - Images over 500 KB fail fast with an error wrapping `serpapi.ErrImageTooLarge`
 - [2026-11-01] 1.4.0 Image API support

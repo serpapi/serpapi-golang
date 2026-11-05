@@ -243,6 +243,45 @@ func TestUploadImageReaderOverridesAPIKey(t *testing.T) {
 	}
 }
 
+func TestUploadImageAPIKeyPrecedence(t *testing.T) {
+	for name, test := range map[string]struct {
+		serpApiKey string
+		setting    map[string]string
+		parameter  map[string]string
+		want       string
+	}{
+		"setting parameter only":      {"", map[string]string{"api_key": "setting-api-key"}, nil, "setting-api-key"},
+		"setting parameter over key":  {"client-api-key", map[string]string{"api_key": "setting-api-key"}, nil, "setting-api-key"},
+		"call parameter over setting": {"client-api-key", map[string]string{"api_key": "setting-api-key"}, map[string]string{"api_key": "call-api-key"}, "call-api-key"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			var form uploadForm
+			client := uploadRecorder(t, test.serpApiKey, &form)
+			client.Setting.Parameter = test.setting
+
+			if _, err := client.UploadImageReader(strings.NewReader("fake-image-data"), "photo.png", test.parameter); err != nil {
+				t.Fatal(err)
+			}
+			if got := form.fields["api_key"]; len(got) != 1 || got[0] != test.want {
+				t.Errorf("api_key = %q, want [%s]", got, test.want)
+			}
+		})
+	}
+}
+
+func TestUploadImageReaderRejectsNil(t *testing.T) {
+	var form uploadForm
+	client := uploadRecorder(t, "client-api-key", &form)
+
+	_, err := client.UploadImageReader(nil, "photo.png", nil)
+	if err == nil || err.Error() != "image must be a non-nil io.Reader" {
+		t.Errorf("error = %v", err)
+	}
+	if form.sent {
+		t.Error("the request must not be sent without an image")
+	}
+}
+
 func TestUploadImageWithoutAPIKey(t *testing.T) {
 	var form uploadForm
 	client := uploadRecorder(t, "", &form)
@@ -282,6 +321,9 @@ func TestUploadImageSizeLimit(t *testing.T) {
 	}
 }
 
+// imageFixture is a 14 KB PNG, well under the Image API limit.
+const imageFixture = "testdata/serpapi-logo.png"
+
 type failingReader struct{}
 
 var errDiskRead = errors.New("disk read failed")
@@ -303,26 +345,25 @@ func TestUploadImageReadError(t *testing.T) {
 	}
 }
 
-// doc: https://serpapi.com/image-api and https://serpapi.com/google-lens-api
+// doc: https://serpapi.com/image-api
+// The Image API is free: this test spends no search credit.
 func TestUploadImageLive(t *testing.T) {
 	if shoulSkip() {
 		t.Skip("SERPAPI_KEY required")
 		return
 	}
-	const fixture = "testdata/serpapi-logo.png"
 	client := serpapi.NewClient(serpapi.NewSerpApiClientSetting(getApiKey()))
 
-	upload, err := client.UploadImage(fixture)
+	upload, err := client.UploadImage(imageFixture)
 	if err != nil {
 		t.Fatal(err)
 	}
-	imageID, _ := upload["image_id"].(string)
-	if imageID == "" {
+	if id, _ := upload["image_id"].(string); id == "" {
 		t.Fatalf("expected a non-empty image_id, got %v", upload)
 	}
 
 	// the api_key can be given per call instead of on the client
-	image, err := os.Open(fixture)
+	image, err := os.Open(imageFixture)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -334,6 +375,25 @@ func TestUploadImageLive(t *testing.T) {
 	}
 	if id, _ := readerUpload["image_id"].(string); id == "" {
 		t.Fatalf("expected a non-empty image_id, got %v", readerUpload)
+	}
+}
+
+// doc: https://serpapi.com/google-lens-api
+// This test spends one search credit.
+func TestUploadImageGoogleLensLive(t *testing.T) {
+	if shoulSkip() {
+		t.Skip("SERPAPI_KEY required")
+		return
+	}
+	client := serpapi.NewClient(serpapi.NewSerpApiClientSetting(getApiKey()))
+
+	upload, err := client.UploadImage(imageFixture)
+	if err != nil {
+		t.Fatal(err)
+	}
+	imageID, _ := upload["image_id"].(string)
+	if imageID == "" {
+		t.Fatalf("expected a non-empty image_id, got %v", upload)
 	}
 
 	results, err := client.Search(map[string]string{

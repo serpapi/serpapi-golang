@@ -122,7 +122,7 @@ func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[st
 // UploadImageReader to choose the filename or to override the api_key.
 //
 // An image larger than MaxImageSize is not sent, and the returned error wraps
-// ErrImageTooLarge.
+// ErrImageTooLarge. A reader is then left partly consumed.
 func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interface{}, error) {
 	return client.UploadImageContext(context.Background(), image)
 }
@@ -153,14 +153,21 @@ func (client *SerpApiClient) UploadImageContext(ctx context.Context, image inter
 // empty filename is uploaded as "image".
 //
 // parameter may set "api_key" to override the client's API key for this call.
-// The Image API takes no other parameter, so other entries are ignored.
-// parameter may be nil.
+// The key is resolved like Search: parameter, then Setting.Parameter, then
+// Setting.SerpApiKey. The Image API takes no other parameter, so other entries
+// are ignored. parameter may be nil.
+//
+// An image larger than MaxImageSize is not sent, and the returned error wraps
+// ErrImageTooLarge. r is then left partly consumed.
 func (client *SerpApiClient) UploadImageReader(r io.Reader, filename string, parameter map[string]string) (map[string]interface{}, error) {
 	return client.UploadImageReaderContext(context.Background(), r, filename, parameter)
 }
 
 // UploadImageReaderContext uploads an image like UploadImageReader and supports cancellation.
 func (client *SerpApiClient) UploadImageReaderContext(ctx context.Context, r io.Reader, filename string, parameter map[string]string) (map[string]interface{}, error) {
+	if r == nil {
+		return nil, errors.New("image must be a non-nil io.Reader")
+	}
 	rsp, err := client.executeImageUpload(ctx, r, filename, parameter)
 	if err != nil {
 		return nil, err
@@ -174,14 +181,10 @@ func (client *SerpApiClient) executeImageUpload(ctx context.Context, reader io.R
 	if filename == "" {
 		filename = "image"
 	}
-	apiKey := client.Setting.SerpApiKey
-	if value, ok := parameter["api_key"]; ok {
-		apiKey = value
-	}
 
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
-	if apiKey != "" {
+	if apiKey, ok := client.apiKey(parameter); ok {
 		if err := writer.WriteField("api_key", apiKey); err != nil {
 			return nil, err
 		}
@@ -347,6 +350,19 @@ func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	return &text, nil
 }
 
+// apiKey returns the API key of a request and whether one is set. The key is
+// taken from parameter, then from the client Setting.Parameter, then from
+// Setting.SerpApiKey when it is not empty.
+func (client *SerpApiClient) apiKey(parameter map[string]string) (string, bool) {
+	if apiKey, ok := parameter["api_key"]; ok {
+		return apiKey, true
+	}
+	if apiKey, ok := client.Setting.Parameter["api_key"]; ok {
+		return apiKey, true
+	}
+	return client.Setting.SerpApiKey, client.Setting.SerpApiKey != ""
+}
+
 // execute sends an HTTP GET request and returns the response
 func (client *SerpApiClient) execute(ctx context.Context, path string, output string, parameter map[string]string) (*http.Response, error) {
 	query := url.Values{}
@@ -358,10 +374,8 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 			query.Add(name, value)
 		}
 	}
-	if _, ok := query["api_key"]; !ok {
-		if client.Setting.SerpApiKey != "" {
-			query.Add("api_key", client.Setting.SerpApiKey)
-		}
+	if apiKey, ok := client.apiKey(parameter); ok {
+		query.Set("api_key", apiKey)
 	}
 	if _, ok := query["engine"]; !ok {
 		if client.Setting.Engine != "" {
