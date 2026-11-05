@@ -3,9 +3,9 @@
 ## Overview
 This document summarizes all changes made to the SerpApi Go library since tag `1.0.0` was created.
 
-## Unreleased
+## v1.5.0 - 2026-11-05
 
-New public API, so the next release is a minor bump (1.5.0):
+New public API:
 - `UploadImageReader(r, filename, parameter)` and `UploadImageReaderContext(ctx, r, filename, parameter)`
 - `MaxImageSize` (500 KB) and `ErrImageTooLarge`
 

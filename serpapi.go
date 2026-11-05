@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	VERSION        = "1.4.0"
+	VERSION        = "1.5.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
 	// MaxImageSize is the largest image, in bytes, accepted by the Image API.

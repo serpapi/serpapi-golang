@@ -2095,7 +2095,7 @@ Go versions validated by GitHub Actions:
  * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
-- Unreleased (next release: 1.5.0)
+- [2026-11-05] 1.5.0 Image upload follow-ups
   - Added `UploadImageReader()` and `UploadImageReaderContext()` to upload a reader under a chosen filename, with an optional per-call `api_key`
   - Added `serpapi.MaxImageSize` and `serpapi.ErrImageTooLarge`
   - Image uploads resolve the API key like `Search`, including `setting.Parameter["api_key"]`
