@@ -17,10 +17,16 @@ import (
 )
 
 const (
-	VERSION        = "1.4.0"
+	VERSION        = "1.5.0"
 	BaseURL        = "https://serpapi.com"
 	DefaultTimeout = 60 * time.Second
+	// MaxImageSize is the largest image, in bytes, accepted by the Image API.
+	MaxImageSize = 500 << 10
 )
+
+// ErrImageTooLarge is wrapped by the error returned when an image to upload
+// exceeds MaxImageSize.
+var ErrImageTooLarge = errors.New("image is too large")
 
 // SerpApiClient holds configuration settings and an HTTP client for making requests
 type SerpApiClient struct {
@@ -106,16 +112,63 @@ func (client *SerpApiClient) SearchContext(ctx context.Context, parameter map[st
 	return client.decodeJSON(rsp.Body)
 }
 
-// UploadImage uploads an image to SerpApi's Image API and returns an image_id
-// that can be used by search engines such as Google Lens. image may be a file
-// path or an io.Reader.
+// UploadImage uploads an image to SerpApi's Image API and returns the JSON
+// response. Its image_id can be passed to engines such as google_lens.
+// See https://serpapi.com/image-api for the supported formats.
+//
+// image is a file path (string) or an io.Reader. The uploaded filename is the
+// base name of the path, or of the reader's Name() method when it has one (as
+// *os.File does). Any other reader is uploaded as "image". Use
+// UploadImageReader to choose the filename or to override the api_key.
+//
+// An image larger than MaxImageSize is not sent, and the returned error wraps
+// ErrImageTooLarge. A reader is then left partly consumed.
 func (client *SerpApiClient) UploadImage(image interface{}) (map[string]interface{}, error) {
 	return client.UploadImageContext(context.Background(), image)
 }
 
 // UploadImageContext uploads an image like UploadImage and supports cancellation.
 func (client *SerpApiClient) UploadImageContext(ctx context.Context, image interface{}) (map[string]interface{}, error) {
-	rsp, err := client.executeImageUpload(ctx, image)
+	switch value := image.(type) {
+	case string:
+		file, err := os.Open(value)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		return client.UploadImageReaderContext(ctx, file, value, nil)
+	case io.Reader:
+		filename := ""
+		if named, ok := value.(interface{ Name() string }); ok {
+			filename = named.Name()
+		}
+		return client.UploadImageReaderContext(ctx, value, filename, nil)
+	default:
+		return nil, errors.New("image must be a file path or io.Reader")
+	}
+}
+
+// UploadImageReader uploads the image read from r to SerpApi's Image API, like
+// UploadImage, under the base name of filename (for example "photo.png"). An
+// empty filename is uploaded as "image".
+//
+// parameter may set "api_key" to override the client's API key for this call.
+// The key is resolved like Search: parameter, then Setting.Parameter, then
+// Setting.SerpApiKey. The Image API takes no other parameter, so other entries
+// are ignored. parameter may be nil.
+//
+// An image larger than MaxImageSize is not sent, and the returned error wraps
+// ErrImageTooLarge. r is then left partly consumed.
+func (client *SerpApiClient) UploadImageReader(r io.Reader, filename string, parameter map[string]string) (map[string]interface{}, error) {
+	return client.UploadImageReaderContext(context.Background(), r, filename, parameter)
+}
+
+// UploadImageReaderContext uploads an image like UploadImageReader and supports cancellation.
+func (client *SerpApiClient) UploadImageReaderContext(ctx context.Context, r io.Reader, filename string, parameter map[string]string) (map[string]interface{}, error) {
+	if r == nil {
+		return nil, errors.New("image must be a non-nil io.Reader")
+	}
+	rsp, err := client.executeImageUpload(ctx, r, filename, parameter)
 	if err != nil {
 		return nil, err
 	}
@@ -124,41 +177,32 @@ func (client *SerpApiClient) UploadImageContext(ctx context.Context, image inter
 }
 
 // executeImageUpload sends a multipart POST request to the Image API.
-func (client *SerpApiClient) executeImageUpload(ctx context.Context, image interface{}) (*http.Response, error) {
-	var reader io.Reader
-	filename := "image"
-	switch value := image.(type) {
-	case string:
-		file, err := os.Open(value)
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
-		reader = file
-		filename = filepath.Base(value)
-	case io.Reader:
-		reader = value
-		if named, ok := value.(interface{ Name() string }); ok {
-			filename = filepath.Base(named.Name())
-		}
-	default:
-		return nil, errors.New("image must be a file path or io.Reader")
+func (client *SerpApiClient) executeImageUpload(ctx context.Context, reader io.Reader, filename string, parameter map[string]string) (*http.Response, error) {
+	if filename == "" {
+		filename = "image"
 	}
 
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
-	part, err := writer.CreateFormFile("image", filename)
+	if apiKey, ok := client.apiKey(parameter); ok {
+		if err := writer.WriteField("api_key", apiKey); err != nil {
+			return nil, err
+		}
+	}
+	if err := writer.WriteField("source", "go:"+VERSION); err != nil {
+		return nil, err
+	}
+	part, err := writer.CreateFormFile("image", filepath.Base(filename))
 	if err != nil {
 		return nil, err
 	}
-	if _, err = io.Copy(part, reader); err != nil {
-		return nil, err
+	// read one byte past the limit to detect an oversized image without buffering all of it
+	size, err := io.Copy(part, io.LimitReader(reader, MaxImageSize+1))
+	if err != nil {
+		return nil, fmt.Errorf("read image: %w", err)
 	}
-
-	if client.Setting.SerpApiKey != "" {
-		if err = writer.WriteField("api_key", client.Setting.SerpApiKey); err != nil {
-			return nil, err
-		}
+	if size > MaxImageSize {
+		return nil, fmt.Errorf("%w: the Image API limit is %d bytes", ErrImageTooLarge, MaxImageSize)
 	}
 	if err = writer.Close(); err != nil {
 		return nil, err
@@ -306,6 +350,19 @@ func (client *SerpApiClient) decodeText(body io.Reader) (*string, error) {
 	return &text, nil
 }
 
+// apiKey returns the API key of a request and whether one is set. The key is
+// taken from parameter, then from the client Setting.Parameter, then from
+// Setting.SerpApiKey when it is not empty.
+func (client *SerpApiClient) apiKey(parameter map[string]string) (string, bool) {
+	if apiKey, ok := parameter["api_key"]; ok {
+		return apiKey, true
+	}
+	if apiKey, ok := client.Setting.Parameter["api_key"]; ok {
+		return apiKey, true
+	}
+	return client.Setting.SerpApiKey, client.Setting.SerpApiKey != ""
+}
+
 // execute sends an HTTP GET request and returns the response
 func (client *SerpApiClient) execute(ctx context.Context, path string, output string, parameter map[string]string) (*http.Response, error) {
 	query := url.Values{}
@@ -317,10 +374,8 @@ func (client *SerpApiClient) execute(ctx context.Context, path string, output st
 			query.Add(name, value)
 		}
 	}
-	if _, ok := query["api_key"]; !ok {
-		if client.Setting.SerpApiKey != "" {
-			query.Add("api_key", client.Setting.SerpApiKey)
-		}
+	if apiKey, ok := client.apiKey(parameter); ok {
+		query.Set("api_key", apiKey)
 	}
 	if _, ok := query["engine"]; !ok {
 		if client.Setting.Engine != "" {

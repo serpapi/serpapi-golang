@@ -171,6 +171,33 @@ func TestSearchContextBuildsExpectedQuery(t *testing.T) {
 	}
 }
 
+func TestSearchAPIKeyPrecedence(t *testing.T) {
+	for name, test := range map[string]struct {
+		setting   map[string]string
+		parameter map[string]string
+		want      string
+	}{
+		"client key":                  {nil, nil, "client-api-key"},
+		"setting parameter over key":  {map[string]string{"api_key": "setting-api-key"}, nil, "setting-api-key"},
+		"call parameter over setting": {map[string]string{"api_key": "setting-api-key"}, map[string]string{"api_key": "call-api-key"}, "call-api-key"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			setting := NewSerpApiClientSetting("client-api-key")
+			setting.Parameter = test.setting
+			client := NewClient(setting)
+			transport := &captureTransport{}
+			client.HttpSearch = &http.Client{Transport: transport}
+
+			if _, err := client.Search(test.parameter); err != nil {
+				t.Fatalf("Search returned an error: %v", err)
+			}
+			if got := transport.request.URL.Query()["api_key"]; len(got) != 1 || got[0] != test.want {
+				t.Fatalf("api_key = %q, want [%s]", got, test.want)
+			}
+		})
+	}
+}
+
 func TestSearchArchiveContextEscapesID(t *testing.T) {
 	client := NewClient(NewSerpApiClientSetting(""))
 	transport := &captureTransport{}

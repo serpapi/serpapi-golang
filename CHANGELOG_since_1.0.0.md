@@ -3,7 +3,24 @@
 ## Overview
 This document summarizes all changes made to the SerpApi Go library since tag `1.0.0` was created.
 
-## Unreleased
+## v1.5.0 - 2026-11-05
+
+New public API:
+- `UploadImageReader(r, filename, parameter)` and `UploadImageReaderContext(ctx, r, filename, parameter)`
+- `MaxImageSize` (500 KB) and `ErrImageTooLarge`
+
+- Added `UploadImageReader` and `UploadImageReaderContext` to upload an `io.Reader` under a chosen filename, with an optional per-call `api_key` override. The key is resolved like `Search`: the call `parameter`, then `Setting.Parameter["api_key"]`, then `Setting.SerpApiKey`. A nil reader returns an error. `UploadImage` and `UploadImageContext` are unchanged and now delegate to them.
+- Documented how `UploadImage` names an uploaded reader: the base name of its `Name()` method (as `*os.File` has), otherwise `image`.
+- Added live integration tests: `TestUploadImageLive` uploads `test/testdata/serpapi-logo.png` (the Image API spends no search credit) and `TestUploadImageGoogleLensLive` searches the uploaded image with `google_lens` (one credit). Added offline tests for the multipart fields, the API key precedence, the size limit, nil readers and reader errors.
+- Added `demo/demo_upload_image.go`: upload an image, then search it with Google Lens.
+
+**Behavior changes:**
+- Image uploads now send `source=go:<version>` as a form field, like every other request.
+- An image larger than 500 KB (`serpapi.MaxImageSize`) is rejected before it is sent, with an error wrapping `serpapi.ErrImageTooLarge`. The server rejects such images anyway; the client no longer buffers and uploads them.
+- A reader error during upload is now wrapped as `read image: <error>` (still matched by `errors.Is`). An oversized reader is left partly consumed.
+- Image uploads now use `Setting.Parameter["api_key"]` when set, like `Search`. In 1.4.0 they only used `Setting.SerpApiKey`.
+
+## v1.4.0 - 2026-11-01
 
 - Added `UploadImage` and `UploadImageContext` for the [Image API](https://serpapi.com/image-api). They take a file path or an `io.Reader`, keep the original filename, and return the `image_id` to pass to engines such as `google_lens`. Non-2xx responses return `*serpapi.HTTPError`, like every other method.
 
