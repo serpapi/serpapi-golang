@@ -100,7 +100,7 @@ fmt.Println(results)
 ```
 
 Context-aware variants are available for `Search`, `Html`, `Md`, `Location`,
-`Account`, `SearchArchive`, `SearchArchiveMd`, and `UploadImage`. The original methods are backward-compatible
+`Account`, `SearchArchive`, `SearchArchiveMd`, `UploadImage`, and `UploadImageReader`. The original methods are backward-compatible
 convenience wrappers.
 
 ### HTTP errors
@@ -229,7 +229,8 @@ parameters as `Search` and `Html`.
 
 ### Image API
 
-Upload JPG/JPEG, PNG, or WebP image (up to 500 KB) to use with supported search engines.
+Upload a JPG/JPEG, PNG, or WebP image (up to 500 KB) and pass the returned `image_id`
+to engines such as `google_lens`.
 
 ```golang
 setting := serpapi.NewSerpApiClientSetting("<SERPAPI_KEY>")
@@ -246,8 +247,28 @@ results, err := client.Search(map[string]string{
 })
 ```
 
-`UploadImage` also accepts an `io.Reader`. Reader ownership remains with the caller.
+ * source code: [demo/demo_upload_image.go](https://github.com/serpapi/serpapi-golang/blob/master/demo/demo_upload_image.go)
 
+`UploadImage` takes a file path or an `io.Reader`. The uploaded filename is the base name of the path,
+or of the reader's `Name()` method when it has one (as `*os.File` does); other readers are uploaded as `image`.
+To choose the filename, or to override the API key for a single call, use `UploadImageReader`:
+
+```golang
+upload, err := client.UploadImageReader(bytes.NewReader(png), "photo.png", map[string]string{
+  "api_key": "<OTHER_SERPAPI_KEY>", // optional, defaults to the client API key
+})
+```
+
+Reader ownership remains with the caller. An image larger than `serpapi.MaxImageSize` (500 KB) is
+rejected before it is sent, with an error wrapping `serpapi.ErrImageTooLarge`:
+
+```golang
+if errors.Is(err, serpapi.ErrImageTooLarge) {
+  // resize the image and retry
+}
+```
+
+`UploadImageContext` and `UploadImageReaderContext` support cancellation and deadlines.
 Uploaded image IDs expire after 10 minutes. See the [Image API documentation](https://serpapi.com/image-api).
 
 ### Location API
@@ -2070,6 +2091,10 @@ Go versions validated by GitHub Actions:
  * see: [GitHub Actions.](https://github.com/serpapi/serpapi-golang/actions/workflows/ci.yml)
 
 ## Changelog
+- Unreleased
+  - Added `UploadImageReader()` and `UploadImageReaderContext()` to upload a reader under a chosen filename, with an optional per-call `api_key`
+  - Image uploads now send `source=go:<version>` like every other request
+  - Images over 500 KB fail fast with an error wrapping `serpapi.ErrImageTooLarge`
 - [2026-11-01] 1.4.0 Image API support
   - Added `UploadImage()` and `UploadImageContext()` for the [Image API](https://serpapi.com/image-api), returning the `image_id` to use with engines such as `google_lens`
   - Accepts a file path or an `io.Reader` and keeps the original filename
@@ -2127,6 +2152,7 @@ classDiagram
     search_archive() Map
     search_archive_md() String
     account() Map
+    upload_image() Map
   }
   class nethttp["net/http"]
   nethttp <.. Client
